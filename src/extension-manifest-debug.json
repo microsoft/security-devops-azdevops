@@ -1,0 +1,80 @@
+{
+  "manifestVersion": 1,
+  "id": "microsoft-security-devops-azdevops-debug",
+  "name": "Microsoft Security DevOps (Debug)",
+  "version": "1.0.1.0",
+  "publisher": "ms-security-devops",
+  "description": "Build tasks for performing security analysis.",
+  "public": false,
+  "galleryFlags": [],
+  "targets": [
+    {
+      "id": "Microsoft.VisualStudio.Services.Cloud"
+    }
+  ],
+  "categories": [
+    "Azure Pipelines"
+  ],
+  "tags": [
+    "Security",
+    "Analysis",
+    "Microsoft Defender",
+    "Microsoft Defender for Cloud",
+    "Static Analysis",
+    "AntiMalware",
+    "Bandit",
+    "BinSkim",
+    "Defender",
+    "ESLint",
+    "Iac",
+    "Gosec",
+    "Flawfinder",
+    "Roslyn Analyzers",
+    "Template Analyzer",
+    "Terrascan",
+    "Trivy",
+    "Windows Defender",
+    "SDL",
+    "Build Break"
+  ],
+  "icons": {
+    "default": "icon.png"
+  },
+  "content": {
+    "details": {
+      "path": "readme.md"
+    }
+  },
+  "links": {
+    "getstarted": {
+      "uri": "https://aka.ms/msdo-azdevops"
+    },
+    "support": {
+      "uri": "mailto:mscahelp@microsoft.com"
+    },
+    "license": {
+      "uri": "https://aka.ms/msdo-eula"
+    }
+  },
+  "branding": {
+    "color": "rgb(64, 64, 64)",
+    "theme": "dark"
+  },
+  "files": [
+    {
+      "path": "MicrosoftSecurityDevOps"
+    }
+  ],
+  "contributions": [
+    {
+      "id": "build-task-microsoft-security-devops",
+      "type": "ms.vss-distributed-task.task",
+      "targets": [
+        "ms.vss-distributed-task.tasks"
+      ],
+      "properties": {
+        "name": "MicrosoftSecurityDevOps"
+      }
+    }
+  ]
+}
