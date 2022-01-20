@@ -1,7 +1,7 @@
 {
     "id": "8d616517-6390-454f-b369-6fd038d8fe96",
     "name": "MicrosoftSecurityDevOps",
-    "friendlyName": "Microsoft Security DevOpos",
+    "friendlyName": "Microsoft Security DevOps",
     "description": "Run the Microsoft Security DevOps CLI for static analysis.",
     "helpMarkDown": "Runs the [Microsoft Security DevOps CLI](https://aka.ms/msdo-nuget) for security analysis.",
     "category": "Utility",
