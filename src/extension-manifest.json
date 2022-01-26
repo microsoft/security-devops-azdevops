@@ -2,11 +2,13 @@
   "manifestVersion": 1,
   "id": "microsoft-security-devops-azdevops",
   "name": "Microsoft Security DevOps",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "publisher": "ms-securitydevops",
   "description": "Build tasks for performing security analysis.",
   "public": false,
-  "galleryFlags": [],
+  "galleryFlags": [
+    "Preview"
+  ],
   "targets": [
     {
       "id": "Microsoft.VisualStudio.Services.Cloud"
