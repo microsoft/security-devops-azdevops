@@ -24,6 +24,9 @@ async function run() {
         }
     }
 
+    let publish: boolean = tl.getBoolInput('publish');
+    let artifactName: string = tl.getInput('artifactName');
+
     let successfulExitCodes: number[] = [0];
 
     let breakEnabled: boolean = tl.getBoolInput('break');
@@ -34,7 +37,7 @@ async function run() {
 
     args.push('--rich-exit-code');
 
-    await client.run(args, successfulExitCodes);
+    await client.run(args, successfulExitCodes, publish, artifactName);
 }
 
 run().catch((error) => tl.setResult(tl.TaskResult.Failed, error));

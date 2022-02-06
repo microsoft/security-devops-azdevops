@@ -11,8 +11,8 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 1,
-        "Minor": 0,
-        "Patch": 6
+        "Minor": 1,
+        "Patch": 0
     },
     "preview": true,
     "minimumAgentVersion": "1.83.0",
@@ -51,6 +51,24 @@
             "required": false,
             "helpMarkDown": "If checked, will fail this build step if any error level results are found.",
             "defaultValue": "false",
+            "group": "advanced"
+        },
+        {
+            "name": "publish",
+            "label": "Publish",
+            "type": "boolean",
+            "required": false,
+            "helpMarkDown": "If checked, will publish the output SARIF results file to the chosen pipeline artifact. Default: true",
+            "defaultValue": "true",
+            "group": "advanced"
+        },
+        {
+            "name": "artifactName",
+            "label": "Artifact Name",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "The name of the pipeline artifact to publish the SARIF result file to. Default: CodeAnalysisLogs</br>If left as \"CodeAnalysisLogs\", it integrates with the [SARIF Scans Tab](https://marketplace.visualstudio.com/items?itemName=sariftools.scans) viewing experience.",
+            "defaultValue": "CodeAnalysisLogs",
             "group": "advanced"
         }
     ],
