@@ -24,6 +24,18 @@ async function run() {
         }
     }
 
+    let categories: string = tl.getInput('categories');
+    if (!client.isNullOrWhiteSpace(categories)) {
+        args.push('--categories');
+        args.push(categories)
+    }
+
+    let languages: string = tl.getInput('languages');
+    if (!client.isNullOrWhiteSpace(categories)) {
+        args.push('--languages');
+        args.push(categories)
+    }
+
     let publish: boolean = tl.getBoolInput('publish');
     let artifactName: string = tl.getInput('artifactName');
 
