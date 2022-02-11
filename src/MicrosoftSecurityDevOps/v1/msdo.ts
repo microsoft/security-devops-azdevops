@@ -31,9 +31,9 @@ async function run() {
     }
 
     let languages: string = tl.getInput('languages');
-    if (!client.isNullOrWhiteSpace(categories)) {
+    if (!client.isNullOrWhiteSpace(languages)) {
         args.push('--languages');
-        args.push(categories)
+        args.push(languages)
     }
 
     let publish: boolean = tl.getBoolInput('publish');
