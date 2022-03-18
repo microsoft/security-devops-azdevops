@@ -24,16 +24,28 @@ async function run() {
         }
     }
 
-    let categories: string = tl.getInput('categories');
-    if (!client.isNullOrWhiteSpace(categories)) {
+    let categoriesString: string = tl.getInput('categories');
+    if (!client.isNullOrWhiteSpace(categoriesString)) {
         args.push('--categories');
-        args.push(categories)
+        let categories = categoriesString.split(',');
+        for (let i = 0; i < categories.length; i++) {
+            let category = categories[i];
+            if (!client.isNullOrWhiteSpace(category)) {
+                args.push(category.trim());
+            }
+        }
     }
 
-    let languages: string = tl.getInput('languages');
-    if (!client.isNullOrWhiteSpace(languages)) {
+    let languagesString: string = tl.getInput('languages');
+    if (!client.isNullOrWhiteSpace(languagesString)) {
         args.push('--languages');
-        args.push(languages)
+        let languages = languagesString.split(',');
+        for (let i = 0; i < languages.length; i++) {
+            let language = languages[i];
+            if (!client.isNullOrWhiteSpace(language)) {
+                args.push(language.trim());
+            }
+        }
     }
 
     let publish: boolean = tl.getBoolInput('publish');
