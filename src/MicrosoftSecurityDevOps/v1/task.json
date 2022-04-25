@@ -11,8 +11,8 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 1,
-        "Minor": 4,
-        "Patch": 1
+        "Minor": 5,
+        "Patch": 0
     },
     "preview": true,
     "minimumAgentVersion": "1.83.0",
@@ -58,6 +58,14 @@
             "type": "string",
             "required": false,
             "helpMarkDown": "A comma separated list of languages to analyze. Example: `javascript,typescript`. Defaults to all.",
+            "group": "advanced"
+        },
+        {
+            "name": "tools",
+            "label": "Tools",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "A comma separated list of analyzer tools to run. Values: `bandit`, `binskim`, `eslint`, `template-analyzer`, `terrascan`, `trivy`.",
             "group": "advanced"
         },
         {

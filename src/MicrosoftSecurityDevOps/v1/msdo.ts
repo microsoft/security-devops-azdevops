@@ -48,6 +48,18 @@ async function run() {
         }
     }
 
+    let toolsString: string = tl.getInput('tools');
+    if (!client.isNullOrWhiteSpace(toolsString)) {
+        args.push('--tool');
+        let tools = toolsString.split(',');
+        for (let i = 0; i < tools.length; i++) {
+            let tool = tools[i];
+            if (!client.isNullOrWhiteSpace(tool)) {
+                args.push(tool.trim());
+            }
+        }
+    }
+
     let publish: boolean = tl.getBoolInput('publish');
     let artifactName: string = tl.getInput('artifactName');
 
