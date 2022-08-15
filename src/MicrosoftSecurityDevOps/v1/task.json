@@ -1,0 +1,108 @@
+{
+    "id": "8d616517-6390-454f-b369-6fd038d8fe96",
+    "name": "MicrosoftSecurityDevOps",
+    "friendlyName": "Microsoft Security DevOps",
+    "description": "Run the Microsoft Security DevOps CLI for static analysis.",
+    "helpMarkDown": "Runs the [Microsoft Security DevOps CLI](https://aka.ms/msdo-nuget) for security analysis.",
+    "category": "Utility",
+    "visibility": [
+        "Build"
+    ],
+    "author": "Microsoft Corporation",
+    "version": {
+        "Major": 1,
+        "Minor": 5,
+        "Patch": 0
+    },
+    "preview": true,
+    "minimumAgentVersion": "1.83.0",
+    "groups": [
+        {
+            "name": "advanced",
+            "displayName": "Advanced",
+            "isExpanded": false
+        }
+    ],
+    "inputs": [
+        {
+            "name": "config",
+            "label": "Config",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "A file path to an MSDO configuration file (`*.gdnconfig`).",
+            "defaultValue": ""
+        },
+        {
+            "name": "policy",
+            "label": "Policy",
+            "type": "pickList",
+            "required": false,
+            "helpMarkDown": "The name of a well known Microsoft policy. If no configuration is provided, the policy may instruct MSDO what tools to run. Default: microsoft",
+            "defaultValue": "microsoft",
+            "options": {
+                "microsoft": "microsoft",
+                "none": "none"
+            }
+        },
+        {
+            "name": "categories",
+            "label": "Categories",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "A comma separated list of analyzer categories to run. Values: `secrets`, `code`, `artifacts`, `IaC`, `containers`. Example: `IaC,secrets`. Defaults to all.",
+            "group": "advanced"
+        },
+        {
+            "name": "languages",
+            "label": "Languages",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "A comma separated list of languages to analyze. Example: `javascript,typescript`. Defaults to all.",
+            "group": "advanced"
+        },
+        {
+            "name": "tools",
+            "label": "Tools",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "A comma separated list of analyzer tools to run. Values: `bandit`, `binskim`, `eslint`, `template-analyzer`, `terrascan`, `trivy`.",
+            "group": "advanced"
+        },
+        {
+            "name": "break",
+            "label": "Break",
+            "type": "boolean",
+            "required": false,
+            "helpMarkDown": "If checked, will fail this build step if any error level results are found.",
+            "defaultValue": "false",
+            "group": "advanced"
+        },
+        {
+            "name": "publish",
+            "label": "Publish",
+            "type": "boolean",
+            "required": false,
+            "helpMarkDown": "If checked, will publish the output SARIF results file to the chosen pipeline artifact. Default: true",
+            "defaultValue": "true",
+            "group": "advanced"
+        },
+        {
+            "name": "artifactName",
+            "label": "Artifact Name",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "The name of the pipeline artifact to publish the SARIF result file to. Default: CodeAnalysisLogs</br>If left as \"CodeAnalysisLogs\", it integrates with the [SARIF Scans Tab](https://marketplace.visualstudio.com/items?itemName=sariftools.scans) viewing experience.",
+            "defaultValue": "CodeAnalysisLogs",
+            "group": "advanced"
+        }
+    ],
+    "instanceNameFormat": "Run Microsoft Defender for DevOps",
+    "execution": {
+        "Node10": {
+            "target": "msdo.js"
+        },
+        "Node": {
+            "target": "msdo.js"
+        }
+    }
+}

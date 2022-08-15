@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup Label="Directories">
+        <!-- Top Level Directories -->
+        <RepoDirectory Condition=" '$(RepoDirectory)' == '' ">$(MSBuildThisFileDirectory)</RepoDirectory>
+        <BinDirectory Condition=" '$(BinDirectory)' == '' ">$(RepoDirectory)bin</BinDirectory>
+        <LibDirectory Condition=" '$(LibDirectory)' == '' ">$(RepoDirectory)lib</LibDirectory>
+        <ScriptsDirectory Condition=" '$(ScriptsDirectory)' == '' ">$(RepoDirectory)scripts</ScriptsDirectory>
+        <SrcDirectory Condition=" '$(SrcDirectory)' == '' ">$(RepoDirectory)src</SrcDirectory>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Configuration">
+        <!-- Configurations -->
+        <Configuration Condition=" '$(Configuration)' == '' ">debug</Configuration>
+
+        <!-- Options -->
+        <Official Condition=" '$(Official)' == '' ">false</Official>
+        <NpmInstall Condition=" '$(NpmInstall)' == '' ">true</NpmInstall>
+    </PropertyGroup>
+
+    <PropertyGroup Label="BuildPaths">
+        <OutputDirectory Condition=" '$(OutputDirectory)' == '' ">$(BinDirectory)\$(Configuration)</OutputDirectory>
+        <StagingDirectory Condition=" '$(StagingDirectory)' == '' ">$(LibDirectory)\$(Configuration)</StagingDirectory>
+        <LibNodeModulesDirectory Condition= " '$(LibNodeModulesDirectory)' == '' ">$(LibDirectory)\node_modules</LibNodeModulesDirectory>
+        <SrcNodeModulesDirectory Condition= " '$(SrcNodeModulesDirectory)' == '' ">$(SrcDirectory)\node_modules</SrcNodeModulesDirectory>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Scripts">
+        <PowerShellExe Condition=" '$(PowerShellExe)' == '' ">C:\Program Files\PowerShell\7\pwsh.exe</PowerShellExe>
+        <GetExtensionVersionScriptPath>$(ScriptsDirectory)\Get-ExtensionVersion.ps1</GetExtensionVersionScriptPath>
+        <RollbackScriptPath>$(ScriptsDirectory)\Rollback.ps1</RollbackScriptPath>
+        <SetPublisherInfoScriptPath>$(ScriptsDirectory)\Set-PublisherInfo.ps1</SetPublisherInfoScriptPath>
+    </PropertyGroup>
+
+    <!-- Configurations -->
+    <PropertyGroup Condition=" '$(Configuration)' == 'debug' ">
+        <ExtensionManifestFileName>extension-manifest-debug.json</ExtensionManifestFileName>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'release' ">
+        <ExtensionManifestFileName>extension-manifest.json</ExtensionManifestFileName>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PublisherName Condition=" '$(Official)' == 'true' AND '$(PublisherName)' == '' ">debug</PublisherName>
+        <ExtensionManifestFilePath>$(SrcDirectory)\$(ExtensionManifestFileName)</ExtensionManifestFilePath>
+        <ExtensionIconFilePath>$(SrcDirectory)\icon.png</ExtensionIconFilePath>
+        <ExtensionReadmeFilePath>$(SrcDirectory)\extension-readme.md</ExtensionReadmeFilePath>
+        <ExtensionEulaFilePath>$(SrcDirectory)\extension-eula.md</ExtensionEulaFilePath>
+        <CopyEula>true</CopyEula>
+        <StagedExtensionManifestFilePath>$(StagingDirectory)\extension-manifest.json</StagedExtensionManifestFilePath>
+        <OutputExtensionFileName>microsoft-security-devops-azdevops</OutputExtensionFileName>
+        <OutputExtensionFilePath>$(OutputDirectory)\$(OutputExtensionFileName)</OutputExtensionFilePath>
+        <OutputExtensionFilePath Condition=" '$(Configuration)' == 'debug'">$(OutputExtensionFilePath)-debug</OutputExtensionFilePath>
+    </PropertyGroup>
+
+    <ItemGroup Label="BuildTasks">
+        <MicrosoftSecurityDevOpsV1 Include="MicrosoftSecurityDevOps">
+            <MajorVersion>v1</MajorVersion>
+            <Platform>Node</Platform>
+        </MicrosoftSecurityDevOpsV1>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'debug'  ">
+        <!-- debug only contributions -->
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- contributions -->
+        <BuildTask Include="@(MicrosoftSecurityDevOpsV1)" />
+    </ItemGroup>
+
+    <Target Name="ValidateConfiguration">
+        <Error
+            Condition=" '$(Configuration)' != 'debug' AND '$(Configuration)' != 'release' "
+            Text="Invalid Configuration given: $(Configuration). Valid values are: debug, release" />
+    </Target>
+
+    <Target Name="Clean">
+        <Message Text="Deleting staging directory: $(StagingDirectory)" />
+        <RemoveDir Directories="$(StagingDirectory)" Condition="Exists('$(StagingDirectory)')" />
+
+        <Message Text="Deleting output directory: $(OutputDirectory)" />
+        <RemoveDir Directories="$(OutputDirectory)" Condition="Exists('$(OutputDirectory)')" />
+    </Target>
+
+    <Target
+        Name="NpmInstall-SrcDirectory"
+        Inputs="$(SrcDirectory)"
+        Outputs="$(SrcNodeModulesDirectory)"
+        Condition=" '$(NpmInstall)' == 'true' ">
+        <Message Text="Intstalling npm packages in source directory: $(SrcDirectory)..." />
+        <Exec Command="npm install" WorkingDirectory="$(SrcDirectory)" />
+        <Delete Files="$(RepoDirectory)/package-lock.json" Condition=" Exists('$(RepoDirectory)/package-lock.json') " />
+    </Target>
+
+    <Target Name="Compile" DependsOnTargets="Clean;NpmInstall-SrcDirectory">
+        <Message Text="Compiling Microsoft Security DevOps for Azure DevOps Extension" />
+        <Exec Command="npx tsc --outDir &quot;$(StagingDirectory)&quot;" WorkingDirectory="$(SrcDirectory)" />
+    </Target>
+
+    <Target
+        Name="NpmInstall-LibDirectory"
+        Inputs="$(LibDirectory)"
+        Outputs="$(LibDirectory)\node_modules"
+        Condition=" '$(NpmInstall)' == 'true' ">
+        <PropertyGroup>
+            <SrcNpmrcFilePath>$(SrcDirectory)\.npmrc</SrcNpmrcFilePath>
+            <SrcPackageJsonFilePath>$(SrcDirectory)\package.json</SrcPackageJsonFilePath>
+            <StagingNodeModulesBinDirectory>$(LibNodeModulesDirectory)\.bin</StagingNodeModulesBinDirectory>
+            <StagingPackageLockJsonFilePath>$(LibNodeModulesDirectory)\.package-lock.json</StagingPackageLockJsonFilePath>
+        </PropertyGroup>
+
+        <Copy SourceFiles="$(SrcNpmrcFilePath)" DestinationFiles="$(LibDirectory)\.npmrc" />
+        <Copy SourceFiles="$(SrcPackageJsonFilePath)" DestinationFiles="$(LibDirectory)\package.json" />
+
+        <Message Text="Installing npm packages staging directory: $(StagingDirectory)..." />
+        <Exec Command="npm install --production" WorkingDirectory="$(StagingDirectory)" />
+
+        <RemoveDir Directories="$(StagingNodeModulesBinDirectory)" Condition=" Exists('$(StagingNodeModulesBinDirectory)') " />
+        <Delete Files="$(StagingPackageLockJsonFilePath)" Condition=" Exists('$(StagingPackageLockJsonFilePath)') " />
+        <Delete Files="$(RepoDirectory)/package-lock.json" Condition=" Exists('$(RepoDirectory)/package-lock.json') " />
+    </Target>
+
+    <Target Name="Stage" DependsOnTargets="NpmInstall-LibDirectory">
+        <Message Text="Staging extension files to directory: $(StagingDirectory)" />
+
+        <!-- Copy the Extension files -->
+        <Copy SourceFiles="$(ExtensionManifestFilePath)" DestinationFiles="$(StagedExtensionManifestFilePath)" />
+        <Copy SourceFiles="$(ExtensionIconFilePath)" DestinationFiles="$(StagingDirectory)\icon.png" />
+        <Copy SourceFiles="$(ExtensionReadmeFilePath)" DestinationFiles="$(StagingDirectory)\readme.md" />
+        <Copy SourceFiles="$(ExtensionEulaFilePath)" DestinationFiles="$(StagingDirectory)\eula.md" Condition=" '$(CopyEula)' == 'true' " />
+    </Target>
+
+    <Target
+        Name="Stage-BuildTask"
+        Inputs="@(BuildTask)"
+        Outputs="$(StagingDirectory)\%(BuildTask.Identity)\%(BuildTask.MajorVersion)"
+        AfterTargets="Stage">
+
+        <PropertyGroup>
+            <BuildTaskSourceFolder>$(SrcDirectory)\%(BuildTask.Identity)</BuildTaskSourceFolder>
+            <BuildTaskSourceFolder Condition=" '%(BuildTask.MajorVersion)' != '' ">$(BuildTaskSourceFolder)\%(BuildTask.MajorVersion)</BuildTaskSourceFolder>
+
+            <BuildTaskStagingFolder>$(StagingDirectory)\%(BuildTask.Identity)</BuildTaskStagingFolder>
+            <BuildTaskStagingFolder Condition=" '%(BuildTask.MajorVersion)' != '' ">$(BuildTaskStagingFolder)\%(BuildTask.MajorVersion)</BuildTaskStagingFolder>
+
+            <IconSourceFilePath Condition=" '%(BuildTask.IconPath)' == '' ">$(SrcDirectory)\icon.png</IconSourceFilePath>
+            <IconStagingFilePath>$(BuildTaskStagingFolder)\icon.png</IconStagingFilePath>
+
+            <InputMapPath>$(BuildTaskSourceFolder)\inputMap.json</InputMapPath>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <!-- Node Build Tasks -->
+            <StagingNodeModuleFiles
+                Condition=" '%(BuildTask.Platform)' == 'Node' "
+                Include="$(LibNodeModulesDirectory)\**\*" />
+            <BuildTaskFiles
+                Condition=" '%(BuildTask.Platform)' == 'Node' "
+                Include="$(BuildTaskSourceFolder)\*.js" />
+            <BuildTaskFiles
+                Condition=" '%(BuildTask.Platform)' == 'Node' "
+                Include="$(BuildTaskSourceFolder)\task.json" />
+            <BuildTaskFiles
+                Condition=" '%(BuildTask.Platform)' == 'Node' And Exists('$(BuildTaskSourceFolder)\task.loc.json') "
+                Include="$(BuildTaskSourceFolder)\task.loc.json" />
+            <BuildTaskFiles
+                Condition=" '%(BuildTask.Platform)' == 'Node' "
+                Include="$(BuildTaskSourceFolder)\**\*.resjson" />
+            <BuildTaskFiles
+                Condition=" '%(BuildTask.Platform)' == 'Node' And Exists('$(InputMapPath)') "
+                Include="$(InputMapPath)" />
+            <BuildTaskFiles
+                Include="%(BuildTask.AdditionalFiles)" />
+        </ItemGroup>
+
+        <Message Text="Staging build task directory: %(BuildTask.Identity) %(BuildTask.MajorVersion)" />
+
+        <!-- Copy build task files  -->
+        <Error
+            Condition=" '@(BuildTaskFiles->Count())' == 0 "
+            Text="BuildTaskFiles files were not found during staging." />
+        <Copy
+            SourceFiles="@(BuildTaskFiles)"
+            DestinationFiles="@(BuildTaskFiles->'$(BuildTaskStagingFolder)\%(RecursiveDir)%(Filename)%(Extension)')" />
+
+        <!-- Copy node_modules -->
+        <Error
+            Condition=" '%(BuildTask.Platform)' == 'Node' AND '@(StagingNodeModuleFiles->Count())' == 0 "
+            Text="StagingNodeModuleFiles files were not found during staging." />
+        <Copy
+            SourceFiles="@(StagingNodeModuleFiles)"
+            DestinationFiles="@(StagingNodeModuleFiles->'$(BuildTaskStagingFolder)\node_modules\%(RecursiveDir)%(Filename)%(Extension)')"
+            Condition=" '%(BuildTask.Platform)' == 'Node' " />
+
+        <!-- Copy build task icon, if one does not already exist -->
+        <Copy
+            SourceFiles="$(IconSourceFilePath)"
+            DestinationFiles="$(IconStagingFilePath)"
+            Condition=" !Exists('$(IconStagingFilePath)') " />
+
+    </Target>
+
+    <Target Name="Ext-Prep" Condition=" '$(Configuration)' == 'debug' ">
+        <Message Text="Updating publisher information..." />
+        <Exec Command="&quot;$(PowerShellExe)&quot; -NonInteractive -NoProfile -ExecutionPolicy Unrestricted -Command &quot;&amp; { &amp; '$(SetPublisherInfoScriptPath)' -ManifestPath '$(StagedExtensionManifestFilePath)' -StagingDirectory '$(StagingDirectory)' -PublishersDirectory '$(PublishersDirectory)' -PublisherName '$(PublisherName)' } &quot;" />
+    </Target>
+
+    <Target Name="Ext-GetVersion">
+        <Message Text="Getting extension version for output filename..." />
+        <Exec
+            Command="&quot;$(PowerShellExe)&quot; -NonInteractive -NoProfile -ExecutionPolicy Unrestricted -Command &quot;&amp; { $(GetExtensionVersionScriptPath) -FilePath '$(StagedExtensionManifestFilePath)' } &quot;"
+            ConsoleToMSBuild="true" >
+            <Output TaskParameter="ConsoleOutput" PropertyName="EXTENSION_VERSION" />
+        </Exec>
+    </Target>   
+
+    <Target Name="Ext-Build" DependsOnTargets="Ext-Prep;Ext-GetVersion">
+        <Message Text="Building DevOps extension..." />
+        <Exec
+            Command="npx tfx extension create --manifest-globs &quot;$(StagedExtensionManifestFilePath)&quot; --output-path &quot;$(OutputExtensionFilePath).$(EXTENSION_VERSION).vsix&quot;"
+            WorkingDirectory="$(StagingDirectory)" />
+    </Target>
+
+    <Target Name="Build" DependsOnTargets="ValidateConfiguration;Compile;Stage;Ext-Build"></Target>
+
+    <Target Name="Ext-GetRollbackVersion">
+        <Message Text="Getting rollback extension version..." />
+        <Exec
+            Command="&quot;$(PowerShellExe)&quot; -NonInteractive -NoProfile -ExecutionPolicy Unrestricted -Command &quot;&amp; { $(GetExtensionVersionScriptPath) -FilePath '$(StagedExtensionManifestFilePath)' } &quot;"
+            ConsoleToMSBuild="true" >
+            <Output TaskParameter="ConsoleOutput" PropertyName="EXTENSION_ROLLBACK_VERSION" />
+        </Exec>
+    </Target>
+
+    <Target Name="Ext-PrepareRollback">
+        <Message Text="Preparing rollback extension..." />
+        <Exec
+            Command="&quot;$(PowerShellExe)&quot; -NonInteractive -NoProfile -ExecutionPolicy Unrestricted -Command &quot;&amp; { $(RollbackScriptPath) -ExtensionFilePath '$(StagedExtensionManifestFilePath)' -Configuration '$(Configuration)' } &quot;"
+            ConsoleToMSBuild="true" />
+    </Target>
+
+    <Target Name="Rollback" DependsOnTargets="Ext-GetVersion;Ext-PrepareRollback;Ext-GetRollbackVersion">
+        <Message Text="Building DevOps rollback extension..." />
+        <Exec
+            Command="npx tfx extension create --manifest-globs &quot;$(StagedExtensionManifestFilePath)&quot; --output-path &quot;$(OutputExtensionFilePath).$(EXTENSION_VERSION)-rollback-$(EXTENSION_ROLLBACK_VERSION).vsix&quot;"
+            WorkingDirectory="$(StagingDirectory)" />
+    </Target>
+
+</Project>
