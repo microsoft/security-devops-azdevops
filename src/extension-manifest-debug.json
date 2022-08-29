@@ -14,6 +14,10 @@
       "id": "Microsoft.VisualStudio.Services.Cloud"
     }
   ],
+  "repository": {
+    "type": "git",
+    "uri": "https://github.com/microsoft/security-devops-azdevops"
+  },
   "categories": [
     "Azure Pipelines"
   ],
