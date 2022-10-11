@@ -10,28 +10,40 @@ An extension for Azure DevOps that contributes a build task to run the [Microsof
 * Normalized processing of results into the SARIF format
 * Build breaks and more
 
+## Dependencies
+
+* The `MicrosoftSecurityDevOps` build task depends on [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
+* The CredScan analyzer depends on [.NET 3.1](https://dotnet.microsoft.com/en-us/download/dotnet/3.1).
+
+Microsoft-hosted build agents ship with an included list of software. To see if your agent image comes with these pre-installed, [see here](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#software).
+
+To install these dependencies at runtime, run the following tasks before the `MicrosoftSecurityDevOps` task.
+```yaml
+- task: UseDotNet@2
+  displayName: 'Use dotnet 3.1'
+  inputs:
+    version: 3.1.x
+- task: UseDotNet@2
+  displayName: 'Use dotnet 6.0'
+  inputs:
+    version: 6.0.x
+```
+
 ## Basic
 
 Add the `MicrosoftSecurityDevOps` build task to your pipeline's yaml:
 
 ```yaml
 steps:
-# Run Microsoft Security DevOps
 - task: MicrosoftSecurityDevOps@1
   displayName: 'Run Microsoft Security DevOps'
 ```
 
-# Open Source Tools
+The `publish` input option is defaulted to true. If true, this will publish a [SARIF formatted](https://aka.ms/sarif) results file as a build artifact to `CodeAnalysisLogs/msdo.sarif`.
 
-| Name | Language | License |
-| --- | --- | --- |
-| [Bandit](https://github.com/PyCQA/bandit) | python | [Apache License 2.0](https://github.com/PyCQA/bandit/blob/master/LICENSE) |
-| [BinSkim](https://github.com/Microsoft/binskim) | binary - Windows, ELF | [MIT License](https://github.com/microsoft/binskim/blob/main/LICENSE) |
-| CredScan | code, artifacts | - |
-| [ESlint](https://github.com/eslint/eslint) | JavaScript | [MIT License](https://github.com/eslint/eslint/blob/main/LICENSE) |
-| [Template Analyzer](https://github.com/Azure/template-analyzer) | Infrastructure-as-code (IaC), ARM templates | [MIT License](https://github.com/Azure/template-analyzer/blob/main/LICENSE.txt) |
-| [Terrascan](https://github.com/accurics/terrascan) | Infrastructure-as-code (IaC), Terraform (HCL2), Kubernetes (JSON/YAML), Helm v3, Kustomize, Dockerfiles | [Apache License 2.0](https://github.com/accurics/terrascan/blob/master/LICENSE) |
-| [Trivy](https://github.com/aquasecurity/trivy) | container images, file systems, and git repositories | [Apache License 2.0](https://github.com/aquasecurity/trivy/blob/main/LICENSE) |
+## View Results
+
+To better view the results of the scan, outside of the console output and results file, the [SARIF SAST Scans Tab](https://marketplace.visualstudio.com/items?itemName=sariftools.scans&targetId=8e02e9e3-062e-46a7-8558-c30016c43306&utm_source=vstsproduct&utm_medium=ExtHubManageList) Azure DevOps extension can be installed in parallel. It will look for `*.sarif` files in the `CodeAnalysisLogs` build artifact directory and display them as source annotations.
 
 ## More Information
 
