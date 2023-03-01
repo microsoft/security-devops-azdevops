@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## v1.7.0 - 02/23/2023
+## v1.7.0 - 03/02/2023
 ### Added
 - Node16 launcher support
 

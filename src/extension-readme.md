@@ -20,10 +20,6 @@ Microsoft-hosted build agents ship with an included list of software. To see if 
 To install these dependencies at runtime, run the following tasks before the `MicrosoftSecurityDevOps` task.
 ```yaml
 - task: UseDotNet@2
-  displayName: 'Use dotnet 3.1'
-  inputs:
-    version: 3.1.x
-- task: UseDotNet@2
   displayName: 'Use dotnet 6.0'
   inputs:
     version: 6.0.x
