@@ -3,11 +3,11 @@
 
     <PropertyGroup Label="Directories">
         <!-- Top Level Directories -->
-        <RepoDirectory Condition=" '$(RepoDirectory)' == '' ">$(MSBuildThisFileDirectory)</RepoDirectory>
-        <BinDirectory Condition=" '$(BinDirectory)' == '' ">$(RepoDirectory)bin</BinDirectory>
-        <LibDirectory Condition=" '$(LibDirectory)' == '' ">$(RepoDirectory)lib</LibDirectory>
-        <ScriptsDirectory Condition=" '$(ScriptsDirectory)' == '' ">$(RepoDirectory)scripts</ScriptsDirectory>
-        <SrcDirectory Condition=" '$(SrcDirectory)' == '' ">$(RepoDirectory)src</SrcDirectory>
+        <RepoDirectory Condition=" '$(RepoDirectory)' == '' ">$(MSBuildThisFileDirectory.TrimEnd('\\'))</RepoDirectory>
+        <BinDirectory Condition=" '$(BinDirectory)' == '' ">$(RepoDirectory)\bin</BinDirectory>
+        <LibDirectory Condition=" '$(LibDirectory)' == '' ">$(RepoDirectory)\lib</LibDirectory>
+        <ScriptsDirectory Condition=" '$(ScriptsDirectory)' == '' ">$(RepoDirectory)\scripts</ScriptsDirectory>
+        <SrcDirectory Condition=" '$(SrcDirectory)' == '' ">$(RepoDirectory)\src</SrcDirectory>
     </PropertyGroup>
 
     <PropertyGroup Label="Configuration">
