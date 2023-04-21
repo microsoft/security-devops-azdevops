@@ -39,10 +39,11 @@ steps:
   displayName: 'Run Microsoft Security DevOps'
 ```
 
-# Open Source Tools
+# Tools
 
 | Name | Language | License |
 | --- | --- | --- |
+| [AntiMalware](https://www.microsoft.com/en-us/windows/comprehensive-security) | code, artifacts | - |
 | [Bandit](https://github.com/PyCQA/bandit) | python | [Apache License 2.0](https://github.com/PyCQA/bandit/blob/master/LICENSE) |
 | [BinSkim](https://github.com/Microsoft/binskim) | binary - Windows, ELF | [MIT License](https://github.com/microsoft/binskim/blob/main/LICENSE) |
 | CredScan | code, artifacts | - |
