@@ -1,12 +1,12 @@
 {
     "name": "microsoft-security-devops-azdevops",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "description": "Microsoft Security DevOps for Azure DevOps.",
     "author": "Microsoft Corporation",
     "license": "MIT",
     "repository": "https://github.com/microsoft/microsoft-security-devops-azdevops",
     "dependencies": {
-        "microsoft-security-devops-azdevops-task-lib": "1.4.0"
+        "microsoft-security-devops-azdevops-task-lib": "1.5.0"
     },
     "devDependencies": {
         "tfx-cli": "0.12.0",
