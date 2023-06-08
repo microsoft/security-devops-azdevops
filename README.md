@@ -10,20 +10,6 @@ An extension for Azure DevOps that contributes a build task to run the [Microsof
 * Normalized processing of results into the SARIF format
 * Build breaks and more
 
-## Dependencies
-
-* The `MicrosoftSecurityDevOps` build task depends on [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
-
-Microsoft-hosted build agents ship with an included list of software. To see if your agent image comes with these pre-installed, [see here](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#software).
-
-To install these dependencies at runtime, run the following tasks before the `MicrosoftSecurityDevOps` task.
-```yaml
-- task: UseDotNet@2
-  displayName: 'Use dotnet 6.0'
-  inputs:
-    version: 6.0.x
-```
-
 ## Basic
 
 Add the `MicrosoftSecurityDevOps` build task to your pipeline's yaml:
@@ -34,10 +20,11 @@ steps:
   displayName: 'Run Microsoft Security DevOps'
 ```
 
-# Open Source Tools
+# Tools
 
 | Name | Language | License |
 | --- | --- | --- |
+| [AntiMalware](https://www.microsoft.com/en-us/windows/comprehensive-security) | code, artifacts | - |
 | [Bandit](https://github.com/PyCQA/bandit) | python | [Apache License 2.0](https://github.com/PyCQA/bandit/blob/master/LICENSE) |
 | [BinSkim](https://github.com/Microsoft/binskim) | binary - Windows, ELF | [MIT License](https://github.com/microsoft/binskim/blob/main/LICENSE) |
 | CredScan | code, artifacts | - |
