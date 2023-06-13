@@ -1,20 +1,19 @@
 import * as tl from 'azure-pipelines-task-lib/task'
 import * as process from 'process';
-import { MsdoClient } from 'microsoft-security-devops-azdevops-task-lib'
+import * as client from '@microsoft/security-devops-azdevops-task-lib/msdo-client';
+import * as common from '@microsoft/security-devops-azdevops-task-lib/msdo-common';
 
 async function run() {
-    let client = new MsdoClient();
-
     let args: string[] = [];
 
     let config: string = tl.getInput('config');
-    if (!client.isNullOrWhiteSpace(config)) {
+    if (!common.isNullOrWhiteSpace(config)) {
         args.push('-c');
         args.push(config);
     }
 
     let policy: string = tl.getInput('policy');
-    if (!client.isNullOrWhiteSpace(policy)) {
+    if (!common.isNullOrWhiteSpace(policy)) {
         if (policy === 'none') {
             args.push('--no-policy');
         } else {
@@ -25,36 +24,36 @@ async function run() {
     }
 
     let categoriesString: string = tl.getInput('categories');
-    if (!client.isNullOrWhiteSpace(categoriesString)) {
+    if (!common.isNullOrWhiteSpace(categoriesString)) {
         args.push('--categories');
         let categories = categoriesString.split(',');
         for (let i = 0; i < categories.length; i++) {
             let category = categories[i];
-            if (!client.isNullOrWhiteSpace(category)) {
+            if (!common.isNullOrWhiteSpace(category)) {
                 args.push(category.trim());
             }
         }
     }
 
     let languagesString: string = tl.getInput('languages');
-    if (!client.isNullOrWhiteSpace(languagesString)) {
+    if (!common.isNullOrWhiteSpace(languagesString)) {
         args.push('--languages');
         let languages = languagesString.split(',');
         for (let i = 0; i < languages.length; i++) {
             let language = languages[i];
-            if (!client.isNullOrWhiteSpace(language)) {
+            if (!common.isNullOrWhiteSpace(language)) {
                 args.push(language.trim());
             }
         }
     }
 
     let toolsString: string = tl.getInput('tools');
-    if (!client.isNullOrWhiteSpace(toolsString)) {
+    if (!common.isNullOrWhiteSpace(toolsString)) {
         args.push('--tool');
         let tools = toolsString.split(',');
         for (let i = 0; i < tools.length; i++) {
             let tool = tools[i];
-            if (!client.isNullOrWhiteSpace(tool)) {
+            if (!common.isNullOrWhiteSpace(tool)) {
                 args.push(tool.trim());
             }
         }
