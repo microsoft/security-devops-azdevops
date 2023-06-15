@@ -91,7 +91,7 @@
             "label": "Artifact Name",
             "type": "string",
             "required": false,
-            "helpMarkDown": "The name of the pipeline artifact to publish the SARIF result file to. Default: CodeAnalysisLogs</br>\"CodeAnalysisLogs\" is also required for integration with [Defender for DevOps](https://aka.ms/defender-for-devops).</br>If left as \"CodeAnalysisLogs\", it integrates with the [SARIF Scans Tab](https://marketplace.visualstudio.com/items?itemName=sariftools.scans) viewing experience.",
+            "helpMarkDown": "The name of the pipeline artifact to publish the SARIF result file to. Default: CodeAnalysisLogs</br>\"CodeAnalysisLogs\" is required for integration with [Defender for DevOps](https://aka.ms/defender-for-devops).</br>If left as \"CodeAnalysisLogs\", it integrates with the [SARIF Scans Tab](https://marketplace.visualstudio.com/items?itemName=sariftools.scans) viewing experience.",
             "defaultValue": "CodeAnalysisLogs",
             "groupName": "advanced"
         }
