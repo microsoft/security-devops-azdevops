@@ -1,0 +1,10 @@
+{
+  "publisherName": "debug",
+  "publisher": "ms-secdevops-test",
+  "version": "1.7.1.0",
+  "mapping": {
+    "MicrosoftSecurityDevOps": "505fbc36-f364-4b95-b1c4-7a3fd78a6559"
+  },
+  "extensionId": "microsoft-security-devops-azdevops-debug",
+  "count": 0
+}
