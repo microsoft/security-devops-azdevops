@@ -65,7 +65,7 @@
             "label": "Tools",
             "type": "string",
             "required": false,
-            "helpMarkDown": "A comma separated list of analyzer tools to run. Values: `bandit`, `binskim`, `eslint`, `template-analyzer`, `terrascan`, `trivy`.",
+            "helpMarkDown": "A comma separated list of analyzer tools to run. Values: `bandit`, `binskim`, `eslint`, `templateanalyzer`, `terrascan`, `trivy`.",
             "groupName": "advanced"
         },
         {
