@@ -17,7 +17,6 @@ Add the `MicrosoftSecurityDevOps` build task to your pipeline's yaml:
 ```yaml
 steps:
 - task: MicrosoftSecurityDevOps@1
-  displayName: 'Run Microsoft Security DevOps'
 ```
 
 # Tools

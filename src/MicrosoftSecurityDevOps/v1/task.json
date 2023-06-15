@@ -12,7 +12,7 @@
     "version": {
         "Major": 1,
         "Minor": 7,
-        "Patch": 0
+        "Patch": 1
     },
     "preview": true,
     "minimumAgentVersion": "1.83.0",
@@ -91,7 +91,7 @@
             "label": "Artifact Name",
             "type": "string",
             "required": false,
-            "helpMarkDown": "The name of the pipeline artifact to publish the SARIF result file to. Default: CodeAnalysisLogs</br>If left as \"CodeAnalysisLogs\", it integrates with the [SARIF Scans Tab](https://marketplace.visualstudio.com/items?itemName=sariftools.scans) viewing experience.",
+            "helpMarkDown": "The name of the pipeline artifact to publish the SARIF result file to. Default: CodeAnalysisLogs</br>\"CodeAnalysisLogs\" is also required for integration with [Defender for DevOps](https://aka.ms/defender-for-devops).</br>If left as \"CodeAnalysisLogs\", it integrates with the [SARIF Scans Tab](https://marketplace.visualstudio.com/items?itemName=sariftools.scans) viewing experience.",
             "defaultValue": "CodeAnalysisLogs",
             "group": "advanced"
         }
