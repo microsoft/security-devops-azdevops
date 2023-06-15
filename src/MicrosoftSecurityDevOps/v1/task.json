@@ -50,7 +50,7 @@
             "type": "string",
             "required": false,
             "helpMarkDown": "A comma separated list of analyzer categories to run. Values: `secrets`, `code`, `artifacts`, `IaC`, `containers`. Example: `IaC,secrets`. Defaults to all.",
-            "group": "advanced"
+            "groupName": "advanced"
         },
         {
             "name": "languages",
@@ -58,7 +58,7 @@
             "type": "string",
             "required": false,
             "helpMarkDown": "A comma separated list of languages to analyze. Example: `javascript,typescript`. Defaults to all.",
-            "group": "advanced"
+            "groupName": "advanced"
         },
         {
             "name": "tools",
@@ -66,7 +66,7 @@
             "type": "string",
             "required": false,
             "helpMarkDown": "A comma separated list of analyzer tools to run. Values: `bandit`, `binskim`, `eslint`, `template-analyzer`, `terrascan`, `trivy`.",
-            "group": "advanced"
+            "groupName": "advanced"
         },
         {
             "name": "break",
@@ -75,7 +75,7 @@
             "required": false,
             "helpMarkDown": "If checked, will fail this build step if any error level results are found.",
             "defaultValue": "false",
-            "group": "advanced"
+            "groupName": "advanced"
         },
         {
             "name": "publish",
@@ -84,7 +84,7 @@
             "required": false,
             "helpMarkDown": "If checked, will publish the output SARIF results file to the chosen pipeline artifact. Default: true",
             "defaultValue": "true",
-            "group": "advanced"
+            "groupName": "advanced"
         },
         {
             "name": "artifactName",
@@ -93,7 +93,7 @@
             "required": false,
             "helpMarkDown": "The name of the pipeline artifact to publish the SARIF result file to. Default: CodeAnalysisLogs</br>\"CodeAnalysisLogs\" is also required for integration with [Defender for DevOps](https://aka.ms/defender-for-devops).</br>If left as \"CodeAnalysisLogs\", it integrates with the [SARIF Scans Tab](https://marketplace.visualstudio.com/items?itemName=sariftools.scans) viewing experience.",
             "defaultValue": "CodeAnalysisLogs",
-            "group": "advanced"
+            "groupName": "advanced"
         }
     ],
     "instanceNameFormat": "Run Microsoft Defender for DevOps",
