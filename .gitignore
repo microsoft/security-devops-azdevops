@@ -29,6 +29,7 @@ bld/
 [Ll]og/
 [Ll]ib/
 **/*.js
+!gulpfile.js
 .publishers
 
 # Visual Studio 2015/2017 cache/options directory
