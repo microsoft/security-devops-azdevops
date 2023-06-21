@@ -6,7 +6,7 @@
     "license": "MIT",
     "repository": "https://github.com/microsoft/microsoft-security-devops-azdevops",
     "dependencies": {
-        "@microsoft/security-devops-azdevops-task-lib": "1.7.2-beta.1",
+        "@microsoft/security-devops-azdevops-task-lib": "1.7.2",
         "azure-pipelines-task-lib": "4.3.1",
         "azure-pipelines-tool-lib": "2.0.4"
     },
