@@ -1,12 +1,12 @@
 {
     "name": "microsoft-security-devops-azdevops",
-    "version": "1.7.1",
+    "version": "1.7.2",
     "description": "Microsoft Security DevOps for Azure DevOps.",
     "author": "Microsoft Corporation",
     "license": "MIT",
     "repository": "https://github.com/microsoft/microsoft-security-devops-azdevops",
     "dependencies": {
-        "@microsoft/security-devops-azdevops-task-lib": "1.7.0",
+        "@microsoft/security-devops-azdevops-task-lib": "1.7.2-beta.1",
         "azure-pipelines-task-lib": "4.3.1",
         "azure-pipelines-tool-lib": "2.0.4"
     },
