@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as assert from 'assert';
 import * as ttm from 'azure-pipelines-task-lib/mock-test';
-import { Inputs, TaskType } from '../src/common';
+import { Inputs, CommandType } from '../common';
 
 
 const conMapTestFile = path.join(__dirname, 'containerMappingMock.js');
@@ -9,7 +9,7 @@ const conMapTestFile = path.join(__dirname, 'containerMappingMock.js');
 describe('Code to Cloud Decorator Task tests', function () {
 
     it('should process pre-job', function(done: Mocha.Done) {        
-        process.env['INPUT_' + Inputs.TaskType] = TaskType.PreJob;
+        process.env['INPUT_' + Inputs.CommandType] = CommandType.PreJob;
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(conMapTestFile);
         tr.run();
         assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -19,7 +19,7 @@ describe('Code to Cloud Decorator Task tests', function () {
 
     it('should process post-job', function(done: Mocha.Done) {
         var curTime = new Date().toISOString();
-        process.env['INPUT_' + Inputs.TaskType] = TaskType.PostJob;
+        process.env['INPUT_' + Inputs.CommandType] = CommandType.PostJob;
         process.env['PREJOBSTARTTIME'] = curTime;
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(conMapTestFile);
         tr.run();
@@ -29,7 +29,7 @@ describe('Code to Cloud Decorator Task tests', function () {
     });
 
     it('should always succeed', function(done: Mocha.Done) {
-        process.env['INPUT_' + Inputs.TaskType] = 'RandomString';
+        process.env['INPUT_' + Inputs.CommandType] = 'RandomString';
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(conMapTestFile);
         tr.run();
         assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -39,7 +39,7 @@ describe('Code to Cloud Decorator Task tests', function () {
 
     it('should encode post-job output', function(done: Mocha.Done) {
         var curTime = new Date().toISOString();
-        process.env['INPUT_' + Inputs.TaskType] = TaskType.PostJob;
+        process.env['INPUT_' + Inputs.CommandType] = CommandType.PostJob;
         process.env['PREJOBSTARTTIME'] = curTime;
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(conMapTestFile);
         tr.run();

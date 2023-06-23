@@ -12,6 +12,9 @@
     },
     "devDependencies": {
         "@types/mocha": "^10.0.1",
+        "@types/mockery": "^1.4.30",
+        "@types/node": "^20.3.1",
+        "@types/q": "^1.5.5",
         "tfx-cli": "^0.15.0",
         "typescript": "^5.1.3"
     }

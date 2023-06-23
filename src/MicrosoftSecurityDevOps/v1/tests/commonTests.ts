@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as assert from 'assert';
-import * as common from '../src/common';
+import * as common from '../common';
 
 describe('Common module tests', function () {
 
