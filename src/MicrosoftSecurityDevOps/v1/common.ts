@@ -75,3 +75,8 @@ export function execTaskCmdSync(cmd: string, args: string[], options?: IExecOpti
  * @returns The base64 encoded string.
  */
 export const encode = (str: string):string => Buffer.from(str, 'binary').toString('base64');
+
+/**
+ * Environment variable name for the pre-job start time.
+ */
+export const preJobStartTime: string = "PREJOBSTARTTIME";

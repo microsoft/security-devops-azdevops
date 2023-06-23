@@ -1,28 +1,23 @@
 import tl = require('azure-pipelines-task-lib/task');
-import { ContainerMapping } from './containerMapping';
-import * as common from "./common";
+import { MicrosoftSecurityDevOps } from './msdo';
+import { Inputs } from "./common";
 
-/*
-* Run the specified function based on the task type
-*/
+let succeedOnError = false;
+
 async function run() {
     const commandType: string = tl.getInputRequired(Inputs.CommandType);
+    succeedOnError = commandType == "pre-job" || commandType == "post-job";
     console.log('Running ', commandType);
-
-    switch (commandType) {
-        case common.CommandType.PreJob:
-            this.runPre();
-            break;
-        case common.CommandType.PostJob:
-            this.runPost();
-            break;
-        default:
-            throw new Error('Invalid task type');
-    }
+    const conMap = new MicrosoftSecurityDevOps(commandType);
+    await conMap.run();
 }
 
 run().catch(error => {
-    console.log("Ran into error: " + error);
-    // Always mark it as success even on error
-    tl.setResult(tl.TaskResult.Succeeded, "Finished execution", true);
+    if (succeedOnError) {
+        console.log("Ran into error: " + error);
+        // Always mark it as success even on error
+        tl.setResult(tl.TaskResult.Succeeded, "Finished execution", true);
+    } else {
+        tl.setResult(tl.TaskResult.Failed, error);
+    }
 });
