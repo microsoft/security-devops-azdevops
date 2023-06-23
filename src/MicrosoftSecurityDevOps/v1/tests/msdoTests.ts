@@ -6,7 +6,7 @@ import { Inputs, CommandType } from '../common';
 
 const conMapTestFile = path.join(__dirname, 'containerMappingMock.js');
 
-describe('Code to Cloud Decorator Task tests', function () {
+describe('MicrosoftSecurityDevOps tests', function () {
 
     it('should process pre-job', function(done: Mocha.Done) {        
         process.env['INPUT_' + Inputs.CommandType] = CommandType.PreJob;
