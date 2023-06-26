@@ -7,6 +7,9 @@
     "repository": "https://github.com/microsoft/microsoft-security-devops-azdevops",
     "scripts": {
         "build": "dotnet build ./build.proj",
+        "compile": "dotnet build ./build.proj /t:Compile",
+        "compile-tests": "dotnet build ./build.proj /t:CompileTests",
+        "compile-and-test": "dotnet build ./build.proj /t:CompileTests && npx mocha test/**/*.js",
         "test": "npx mocha test/**/*.js"
     },
     "dependencies": {

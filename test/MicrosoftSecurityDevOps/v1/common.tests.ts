@@ -1,12 +1,11 @@
 import { stagingDirectory } from '../../testCommon';
 import * as path from 'path';
 import * as assert from 'assert';
-let common;
+const common = require(path.join(stagingDirectory, 'MicrosoftSecurityDevOps', 'v1', 'common'));
+let Inputs = common.Inputs;
+let CommandType = common.CommandType;
 
 describe('Common module tests', function () {
-    before(async () => {
-        common = await import(path.join(stagingDirectory, 'MicrosoftSecurityDevOps', 'v1', 'common'));
-    });
 
     it('should encode a string to base64', () => {
         const str = 'hello world';

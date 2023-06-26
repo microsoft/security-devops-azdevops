@@ -17,8 +17,11 @@
 
         <!-- Options -->
         <Official Condition=" '$(Official)' == '' ">false</Official>
-        <NpmInstall Condition=" '$(NpmInstall)' == '' ">true</NpmInstall>
         <RunTests Condition=" '$(RunTests)' == '' ">false</RunTests>
+        
+        <NpmInstall Condition=" '$(NpmInstall)' == '' ">true</NpmInstall>
+        <ForceNpmInstall Condition=" '$(Official)' == 'true' ">true</ForceNpmInstall>
+        <ForceNpmInstall Condition=" '$(ForceNpmInstall)' == '' ">false</ForceNpmInstall>
     </PropertyGroup>
 
     <PropertyGroup Label="BuildPaths">
@@ -85,9 +88,6 @@
 
         <Message Text="Deleting output directory: $(OutputDirectory)" />
         <RemoveDir Directories="$(OutputDirectory)" Condition="Exists('$(OutputDirectory)')" />
-
-        <Message Text="Deleting staging directory: $(StagingDirectory)" />
-        <RemoveDir Files="$(StagingDirectory)" Condition="Exists('$(StagingDirectory)')" />
     </Target>
 
     <Target Name="CleanTests">
@@ -102,7 +102,7 @@
         Name="NpmInstall-RepoDirectory"
         Inputs="$(RepoDirectory)"
         Outputs="$(RepoNodeModulesDirectory)"
-        Condition=" '$(NpmInstall)' == 'true' ">
+        Condition=" '$(NpmInstall)' == 'true' AND ('$(ForceNpmInstall)' == 'true' OR EXISTS('$(RepoNodeModulesDirectory)') != 'true')">
         <Message Text="Intstalling npm packages in repo directory: $(RepoDirectory)..." />
         <Exec Command="npm install" WorkingDirectory="$(RepoDirectory)" />
     </Target>
@@ -121,7 +121,7 @@
         Name="NpmInstall-LibDirectory"
         Inputs="$(LibDirectory)"
         Outputs="$(LibDirectory)\node_modules"
-        Condition=" '$(NpmInstall)' == 'true' ">
+        Condition=" '$(NpmInstall)' == 'true' AND ('$(ForceNpmInstall)' == 'true' OR EXISTS('$(LibDirectory)\node_modules') != 'true') ">
         <PropertyGroup>
             <RepoPackageJsonFilePath>$(RepoDirectory)\package.json</RepoPackageJsonFilePath>
             <SrcNpmrcFilePath>$(SrcDirectory)\.npmrc</SrcNpmrcFilePath>

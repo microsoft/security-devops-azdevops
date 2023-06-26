@@ -2,19 +2,13 @@ import { stagingDirectory } from '../../testCommon';
 import * as path from 'path';
 import * as assert from 'assert';
 import * as ttm from 'azure-pipelines-task-lib/mock-test';
-let common;
-let Inputs;
-let CommandType;
+const common = require(path.join(stagingDirectory, 'MicrosoftSecurityDevOps', 'v1', 'common'));
+let Inputs = common.Inputs;
+let CommandType = common.CommandType;
 
-
-const conMapTestFile = path.join(__dirname, 'containerMappingMock.js');
+const conMapTestFile = path.join(__dirname, 'msdoMock.js');
 
 describe('MicrosoftSecurityDevOps tests', function () {
-    before(async () => {
-        common = await import(path.join(stagingDirectory, 'MicrosoftSecurityDevOps', 'v1', 'common'));
-        Inputs = common.Inputs;
-        CommandType = common.Commandtype;
-    });
 
     it('should process pre-job', function(done: Mocha.Done) {        
         process.env['INPUT_' + Inputs.CommandType] = CommandType.PreJob;
