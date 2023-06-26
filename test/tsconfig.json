@@ -5,8 +5,7 @@
     "lib": [
       "es6"
     ],
-    "outDir": "./lib",
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": false,
     "esModuleInterop": true,
     "noImplicitAny": false,
@@ -14,10 +13,9 @@
     "sourceMap": true
   },
   "include": [
-    "src/**/*"
+    "**/*"
   ],
   "exclude": [
-    "node_modules",
-    "**/*.test.ts"
+    "node_modules"
   ]
 }

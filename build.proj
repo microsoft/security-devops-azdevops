@@ -8,6 +8,7 @@
         <LibDirectory Condition=" '$(LibDirectory)' == '' ">$(RepoDirectory)\lib</LibDirectory>
         <ScriptsDirectory Condition=" '$(ScriptsDirectory)' == '' ">$(RepoDirectory)\scripts</ScriptsDirectory>
         <SrcDirectory Condition=" '$(SrcDirectory)' == '' ">$(RepoDirectory)\src</SrcDirectory>
+        <TestDirectory Condition=" '$(TestDirectory)' == '' ">$(RepoDirectory)\test</TestDirectory>
     </PropertyGroup>
 
     <PropertyGroup Label="Configuration">
@@ -17,13 +18,14 @@
         <!-- Options -->
         <Official Condition=" '$(Official)' == '' ">false</Official>
         <NpmInstall Condition=" '$(NpmInstall)' == '' ">true</NpmInstall>
+        <RunTests Condition=" '$(RunTests)' == '' ">false</RunTests>
     </PropertyGroup>
 
     <PropertyGroup Label="BuildPaths">
         <OutputDirectory Condition=" '$(OutputDirectory)' == '' ">$(BinDirectory)\$(Configuration)</OutputDirectory>
         <StagingDirectory Condition=" '$(StagingDirectory)' == '' ">$(LibDirectory)\$(Configuration)</StagingDirectory>
         <LibNodeModulesDirectory Condition= " '$(LibNodeModulesDirectory)' == '' ">$(LibDirectory)\node_modules</LibNodeModulesDirectory>
-        <SrcNodeModulesDirectory Condition= " '$(SrcNodeModulesDirectory)' == '' ">$(SrcDirectory)\node_modules</SrcNodeModulesDirectory>
+        <RepoNodeModulesDirectory Condition= " '$(RepoNodeModulesDirectory)' == '' ">$(RepoDirectory)\node_modules</RepoNodeModulesDirectory>
     </PropertyGroup>
 
     <PropertyGroup Label="Scripts">
@@ -77,27 +79,42 @@
             Text="Invalid Configuration given: $(Configuration). Valid values are: debug, release" />
     </Target>
 
-    <Target Name="Clean">
+    <Target Name="Clean" DependsOnTargets="CleanTests">
         <Message Text="Deleting staging directory: $(StagingDirectory)" />
         <RemoveDir Directories="$(StagingDirectory)" Condition="Exists('$(StagingDirectory)')" />
 
         <Message Text="Deleting output directory: $(OutputDirectory)" />
         <RemoveDir Directories="$(OutputDirectory)" Condition="Exists('$(OutputDirectory)')" />
+
+        <Message Text="Deleting staging directory: $(StagingDirectory)" />
+        <RemoveDir Files="$(StagingDirectory)" Condition="Exists('$(StagingDirectory)')" />
+    </Target>
+
+    <Target Name="CleanTests">
+        <ItemGroup>
+            <CompiledTestFiles Include="$(TestDirectory)\**\*.js" />
+            <CompiledTestFiles Include="$(TestDirectory)\**\*.js.map" />
+        </ItemGroup>
+        <Delete Files="@(CompiledTestFiles)" />
     </Target>
 
     <Target
-        Name="NpmInstall-SrcDirectory"
-        Inputs="$(SrcDirectory)"
-        Outputs="$(SrcNodeModulesDirectory)"
+        Name="NpmInstall-RepoDirectory"
+        Inputs="$(RepoDirectory)"
+        Outputs="$(RepoNodeModulesDirectory)"
         Condition=" '$(NpmInstall)' == 'true' ">
-        <Message Text="Intstalling npm packages in source directory: $(SrcDirectory)..." />
-        <Exec Command="npm install" WorkingDirectory="$(SrcDirectory)" />
-        <Delete Files="$(RepoDirectory)/package-lock.json" Condition=" Exists('$(RepoDirectory)/package-lock.json') " />
+        <Message Text="Intstalling npm packages in repo directory: $(RepoDirectory)..." />
+        <Exec Command="npm install" WorkingDirectory="$(RepoDirectory)" />
     </Target>
 
-    <Target Name="Compile" DependsOnTargets="Clean;NpmInstall-SrcDirectory">
+    <Target Name="Compile" DependsOnTargets="Clean;NpmInstall-RepoDirectory">
         <Message Text="Compiling Microsoft Security DevOps for Azure DevOps Extension" />
         <Exec Command="npx tsc --outDir &quot;$(StagingDirectory)&quot;" WorkingDirectory="$(SrcDirectory)" />
+    </Target>
+
+    <Target Name="CompileTests" DependsOnTargets="CleanTests;NpmInstall-RepoDirectory">
+        <Message Text="Compiling tests" />
+        <Exec Command="npx tsc" WorkingDirectory="$(TestDirectory)" />
     </Target>
 
     <Target
@@ -106,21 +123,20 @@
         Outputs="$(LibDirectory)\node_modules"
         Condition=" '$(NpmInstall)' == 'true' ">
         <PropertyGroup>
+            <RepoPackageJsonFilePath>$(RepoDirectory)\package.json</RepoPackageJsonFilePath>
             <SrcNpmrcFilePath>$(SrcDirectory)\.npmrc</SrcNpmrcFilePath>
-            <SrcPackageJsonFilePath>$(SrcDirectory)\package.json</SrcPackageJsonFilePath>
             <StagingNodeModulesBinDirectory>$(LibNodeModulesDirectory)\.bin</StagingNodeModulesBinDirectory>
             <StagingPackageLockJsonFilePath>$(LibNodeModulesDirectory)\.package-lock.json</StagingPackageLockJsonFilePath>
         </PropertyGroup>
 
+        <Copy SourceFiles="$(RepoPackageJsonFilePath)" DestinationFiles="$(LibDirectory)\package.json" />
         <Copy SourceFiles="$(SrcNpmrcFilePath)" DestinationFiles="$(LibDirectory)\.npmrc" />
-        <Copy SourceFiles="$(SrcPackageJsonFilePath)" DestinationFiles="$(LibDirectory)\package.json" />
 
         <Message Text="Installing npm packages staging directory: $(StagingDirectory)..." />
         <Exec Command="npm install --production" WorkingDirectory="$(StagingDirectory)" />
 
         <RemoveDir Directories="$(StagingNodeModulesBinDirectory)" Condition=" Exists('$(StagingNodeModulesBinDirectory)') " />
         <Delete Files="$(StagingPackageLockJsonFilePath)" Condition=" Exists('$(StagingPackageLockJsonFilePath)') " />
-        <Delete Files="$(RepoDirectory)/package-lock.json" Condition=" Exists('$(RepoDirectory)/package-lock.json') " />
     </Target>
 
     <Target Name="Stage" DependsOnTargets="NpmInstall-LibDirectory">
@@ -203,6 +219,11 @@
 
     </Target>
 
+    <Target Name="Test" Condition=" '$(RunTests)' == 'true' " DependsOnTargets="CompileTests">
+        <Message Text="Compiling Microsoft Security DevOps for Azure DevOps Extension" />
+        <Exec Command="npx mocha" WorkingDirectory="$(TestDirectory)" />
+    </Target>
+
     <Target Name="Ext-Prep" Condition=" '$(Configuration)' == 'debug' ">
         <Message Text="Updating publisher information..." />
         <Exec Command="&quot;$(PowerShellExe)&quot; -NonInteractive -NoProfile -ExecutionPolicy Unrestricted -Command &quot;&amp; { &amp; '$(SetPublisherInfoScriptPath)' -ManifestPath '$(StagedExtensionManifestFilePath)' -StagingDirectory '$(StagingDirectory)' -PublishersDirectory '$(PublishersDirectory)' -PublisherName '$(PublisherName)' } &quot;" />
@@ -224,7 +245,7 @@
             WorkingDirectory="$(StagingDirectory)" />
     </Target>
 
-    <Target Name="Build" DependsOnTargets="ValidateConfiguration;Compile;Stage;Ext-Build"></Target>
+    <Target Name="Build" DependsOnTargets="ValidateConfiguration;Compile;CompileTests;Stage;Test;Ext-Build"></Target>
 
     <Target Name="Ext-GetRollbackVersion">
         <Message Text="Getting rollback extension version..." />

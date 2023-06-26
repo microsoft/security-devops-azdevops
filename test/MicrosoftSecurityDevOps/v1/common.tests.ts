@@ -1,8 +1,12 @@
+import { stagingDirectory } from '../../testCommon';
 import * as path from 'path';
 import * as assert from 'assert';
-import * as common from '../common';
+let common;
 
 describe('Common module tests', function () {
+    before(async () => {
+        common = await import(path.join(stagingDirectory, 'MicrosoftSecurityDevOps', 'v1', 'common'));
+    });
 
     it('should encode a string to base64', () => {
         const str = 'hello world';
@@ -12,8 +16,8 @@ describe('Common module tests', function () {
     });
 
     it('should return the task version', () => {
-        var goodTaskPath = path.join(__dirname, '..', '..', 'tests', 'payloads', 'GoodTask.json');
-        assert.equal(common.getTaskVersion(goodTaskPath), "0.1.1", "version didn't match");
+        var goodTaskPath = path.join(__dirname, 'payloads', 'GoodTask.json');
+        assert.equal(common.getTaskVersion(goodTaskPath), "1.7.2", "version didn't match");
         assert.equal(common.getTaskVersion("randomWrongPath.json"), common.Constants.Unknown, "version should be undefined");
     });
 });
