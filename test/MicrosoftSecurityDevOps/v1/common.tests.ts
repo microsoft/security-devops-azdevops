@@ -1,7 +1,7 @@
 import { stagingDirectory } from '../../testCommon';
 import * as path from 'path';
 import * as assert from 'assert';
-const common = require(path.join(stagingDirectory, 'MicrosoftSecurityDevOps', 'v1', 'common'));
+const common = require(path.join(stagingDirectory, 'MicrosoftSecurityDevOps', 'v1', 'msdo-helpers'));
 let Inputs = common.Inputs;
 let CommandType = common.CommandType;
 

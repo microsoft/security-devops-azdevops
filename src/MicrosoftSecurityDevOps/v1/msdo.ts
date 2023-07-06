@@ -1,5 +1,5 @@
 import tl = require('azure-pipelines-task-lib/task');
-import * as common from './common';
+import { CommandType, getTaskVersion, execTaskCmdSync, encode } from './msdo-helpers';
 import { IExecOptions } from 'azure-pipelines-task-lib/toolrunner';
 import { IMicrosoftSecurityDevOps } from './msdo-interface';
 import * as client from '@microsoft/security-devops-azdevops-task-lib/msdo-client';
@@ -10,7 +10,7 @@ import * as msdoCommon from '@microsoft/security-devops-azdevops-task-lib/msdo-c
 * Class for Container Mapping functionality in Code to Cloud Decorator task.
 */
 export class MicrosoftSecurityDevOps implements IMicrosoftSecurityDevOps {
-    private readonly commandType: common.CommandType;
+    private readonly commandType: CommandType;
     private readonly version: string;
     private readonly sectionDelim: string = ":::";
     private readonly preJobStartTime: string = "PREJOBSTARTTIME";
@@ -19,8 +19,8 @@ export class MicrosoftSecurityDevOps implements IMicrosoftSecurityDevOps {
     };
 
     constructor(inputString: string) {
-        this.commandType = inputString as common.CommandType;
-        this.version = common.getTaskVersion();
+        this.commandType = inputString as CommandType;
+        this.version = getTaskVersion();
     }
 
     /*
@@ -40,11 +40,11 @@ export class MicrosoftSecurityDevOps implements IMicrosoftSecurityDevOps {
             throw new Error(this.preJobStartTime + " variable not set");
         }
         let data : string[] = [];
-        data.push(common.execTaskCmdSync("docker", ["--version"], this.imageOptions));
+        data.push(execTaskCmdSync("docker", ["--version"], this.imageOptions));
         data.push("Version: " + this.version);
         data.push(this.sectionDelim + "Events:");
 
-        var events = common.execTaskCmdSync("docker", [
+        var events = execTaskCmdSync("docker", [
             "events",
             "--since",
             startTime,
@@ -61,13 +61,13 @@ export class MicrosoftSecurityDevOps implements IMicrosoftSecurityDevOps {
         data.push(events);
         
         data.push(this.sectionDelim + "Images:");
-        var images = common.execTaskCmdSync("docker", [
+        var images = execTaskCmdSync("docker", [
             "images",
             "--format",
             "CreatedAt={{.CreatedAt}}::Repo={{.Repository}}::Tag={{.Tag}}::Digest={{.Digest}}"
             ], this.imageOptions);
         data.push(images);
-        console.log(common.encode(data.join("\n")));
+        console.log(encode(data.join("\n")));
     }
 
     private async runMsdo() {
@@ -147,13 +147,13 @@ export class MicrosoftSecurityDevOps implements IMicrosoftSecurityDevOps {
     */
     async run() {
         switch (this.commandType) {
-            case common.CommandType.PreJob:
+            case CommandType.PreJob:
                 this.runPreJob();
                 break;
-            case common.CommandType.PostJob:
+            case CommandType.PostJob:
                 this.runPostJob();
                 break;
-            case common.CommandType.Run:
+            case CommandType.Run:
                 await this.runMsdo();
                 break;
             default:

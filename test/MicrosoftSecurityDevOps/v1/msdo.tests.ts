@@ -2,7 +2,7 @@ import { stagingDirectory } from '../../testCommon';
 import * as path from 'path';
 import * as assert from 'assert';
 import * as ttm from 'azure-pipelines-task-lib/mock-test';
-const common = require(path.join(stagingDirectory, 'MicrosoftSecurityDevOps', 'v1', 'common'));
+const common = require(path.join(stagingDirectory, 'MicrosoftSecurityDevOps', 'v1', 'msdo-helpers'));
 let Inputs = common.Inputs;
 let CommandType = common.CommandType;
 
@@ -12,10 +12,11 @@ describe('MicrosoftSecurityDevOps tests', function () {
 
     it('should process pre-job', function(done: Mocha.Done) {        
         process.env['INPUT_' + Inputs.CommandType] = CommandType.PreJob;
+        process.env['TASK_TEST_TRACE'] = '1';
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(conMapTestFile);
         tr.run();
         assert.equal(tr.succeeded, true, 'should have succeeded');
-        assert.equal(tr.stdOutContained('vso[task.setvariable variable=PREJOBSTARTTIME;'), true, "variale not set:" + tr.stdout);
+        assert.equal(tr.stdOutContained('vso[task.setvariable variable=PREJOBSTARTTIME;'), true, "variable not set:" + tr.stdout);
         done();
     });
 
@@ -30,8 +31,8 @@ describe('MicrosoftSecurityDevOps tests', function () {
         done();
     });
 
-    it('should always succeed', function(done: Mocha.Done) {
-        process.env['INPUT_' + Inputs.CommandType] = 'RandomString';
+    it('should always succeed if pre or post job', function(done: Mocha.Done) {
+        process.env['INPUT_' + Inputs.CommandType] = CommandType.PreJob;
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(conMapTestFile);
         tr.run();
         assert.equal(tr.succeeded, true, 'should have succeeded');

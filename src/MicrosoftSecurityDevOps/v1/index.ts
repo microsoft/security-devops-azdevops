@@ -1,12 +1,12 @@
 import tl = require('azure-pipelines-task-lib/task');
 import { MicrosoftSecurityDevOps } from './msdo';
-import { Inputs } from './common';
+import { Inputs, CommandType } from './msdo-helpers';
 
 let succeedOnError = false;
 
 async function run() {
-    const commandType: string = tl.getInputRequired(Inputs.CommandType) || 'run';
-    succeedOnError = commandType == 'pre-job' || commandType == 'post-job';
+    const commandType: string = tl.getInput(Inputs.CommandType, false) || CommandType.Run;
+    succeedOnError = commandType == CommandType.PreJob || commandType == CommandType.PostJob;
     console.log('Running ', commandType);
     const conMap = new MicrosoftSecurityDevOps(commandType);
     await conMap.run();

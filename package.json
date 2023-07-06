@@ -8,9 +8,9 @@
     "scripts": {
         "build": "dotnet build ./build.proj",
         "compile": "dotnet build ./build.proj /t:Compile",
-        "compile-tests": "dotnet build ./build.proj /t:CompileTests",
-        "compile-and-test": "dotnet build ./build.proj /t:CompileTests && npx mocha test/**/*.js",
-        "test": "npx mocha test/**/*.js"
+        "compile-tests": "dotnet build ./build.proj /t:CopyTestHelpers",
+        "compile-and-test": "dotnet build ./build.proj /t:Test /p:RunTests=true",
+        "test": "npx mocha **/*.tests.js"
     },
     "dependencies": {
         "@microsoft/security-devops-azdevops-task-lib": "1.7.2",

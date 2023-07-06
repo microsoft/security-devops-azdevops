@@ -40,6 +40,9 @@ bld/
 # Visual Studio 2017 auto generated files
 Generated\ Files/
 
+# VSCode files
+.vscode
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*

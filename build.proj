@@ -9,6 +9,7 @@
         <ScriptsDirectory Condition=" '$(ScriptsDirectory)' == '' ">$(RepoDirectory)\scripts</ScriptsDirectory>
         <SrcDirectory Condition=" '$(SrcDirectory)' == '' ">$(RepoDirectory)\src</SrcDirectory>
         <TestDirectory Condition=" '$(TestDirectory)' == '' ">$(RepoDirectory)\test</TestDirectory>
+        <TestStagingDirectory Condition=" '$(TestStagingDirectory)' == '' ">$(TestDirectory)\lib</TestStagingDirectory>
     </PropertyGroup>
 
     <PropertyGroup Label="Configuration">
@@ -96,6 +97,7 @@
             <CompiledTestFiles Include="$(TestDirectory)\**\*.js.map" />
         </ItemGroup>
         <Delete Files="@(CompiledTestFiles)" />
+        <RemoveDir Directories="$(TestStagingDirectory)" />
     </Target>
 
     <Target
@@ -114,7 +116,7 @@
 
     <Target Name="CompileTests" DependsOnTargets="CleanTests;NpmInstall-RepoDirectory">
         <Message Text="Compiling tests" />
-        <Exec Command="npx tsc" WorkingDirectory="$(TestDirectory)" />
+        <Exec Command="npx tsc --outDir &quot;$(TestStagingDirectory)&quot;"  WorkingDirectory="$(TestDirectory)" />
     </Target>
 
     <Target
@@ -219,9 +221,20 @@
 
     </Target>
 
-    <Target Name="Test" Condition=" '$(RunTests)' == 'true' " DependsOnTargets="CompileTests">
+    <Target Name="CopyTestHelpers" DependsOnTargets="CompileTests;Stage-BuildTask">
+        <Message Text="Copy Test Helper files to: $(TestStagingDirectory)" />
+
+        <ItemGroup>
+            <TestHelperFiles Include="$(TestDirectory)\**\*.json" />
+        </ItemGroup>
+
+        <Copy SourceFiles="$(BuildTaskSourceFolder)\task.json" DestinationFiles="$(TestStagingDirectory)\task.json" />
+        <Copy SourceFiles="@(TestHelperFiles)" DestinationFolder="$(TestStagingDirectory)\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    </Target>
+
+    <Target Name="Test" Condition=" '$(RunTests)' == 'true' " DependsOnTargets="CopyTestHelpers">
         <Message Text="Compiling Microsoft Security DevOps for Azure DevOps Extension" />
-        <Exec Command="npx mocha" WorkingDirectory="$(TestDirectory)" />
+        <Exec Command="npx mocha **/*.tests.js" WorkingDirectory="$(TestStagingDirectory)" />
     </Target>
 
     <Target Name="Ext-Prep" Condition=" '$(Configuration)' == 'debug' ">
