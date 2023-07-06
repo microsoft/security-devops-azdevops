@@ -25,7 +25,8 @@ export enum CommandType {
  */
 export enum Constants {
     // Unknown value
-    Unknown = "unknown"
+    Unknown = "unknown",
+    PreJobStartTime = "PREJOBSTARTTIME"
 }
 
 /**
@@ -78,6 +79,34 @@ export function execTaskCmdSync(cmd: string, args: string[], options?: IExecOpti
 export const encode = (str: string):string => Buffer.from(str, 'binary').toString('base64');
 
 /**
- * Environment variable name for the pre-job start time.
+ * Returns the encoded content of the Docker version, Docker events, and Docker images in the pre-defined format -
+ * DockerVersion
+ * Version: TaskVersion
+ * <Delim>Events:
+ * DockerEvents
+ * <Delim>Images:
+ * DockerImages
+ * 
+ * @param dockerVersion - The version of Docker.
+ * @param dockerEvents - The Docker events.
+ * @param dockerImages - The Docker images.
+ * @param taskVersion - Optional version of the task. Defaults to the version in the task.json file.
+ * @param sectionDelim - Optional delimiter to separate sections in the encoded content. Defaults to ":::".
+ * @returns The encoded content of the Docker version, Docker events, and Docker images.
  */
-export const preJobStartTime: string = "PREJOBSTARTTIME";
+export function getEncodedContent(
+    dockerVersion: string,
+    dockerEvents: string,
+    dockerImages: string,
+    taskVersion: string = getTaskVersion(),
+    sectionDelim: string = ":::"
+): string {
+    let data : string[] = [];
+    data.push(dockerVersion);
+    data.push("Version: " + taskVersion);
+    data.push(sectionDelim + "Events:");
+    data.push(dockerEvents);
+    data.push(sectionDelim + "Images:");
+    data.push(dockerImages);
+    return encode(data.join("\n"));
+}

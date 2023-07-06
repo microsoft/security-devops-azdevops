@@ -19,4 +19,14 @@ describe('Common module tests', function () {
         assert.equal(common.getTaskVersion(goodTaskPath), "1.7.2", "version didn't match");
         assert.equal(common.getTaskVersion("randomWrongPath.json"), common.Constants.Unknown, "version should be undefined");
     });
+
+    it('should get the correct encoded content', () => {
+        const dockerVersion = "1.7.2";
+        const taskVersion = "0.0.1";
+        const events = "events:123";
+        const images = "images:567";
+        const expected = "MS43LjIKVmVyc2lvbjogMC4wLjEKOjo6RXZlbnRzOgpldmVudHM6MTIzCjo6OkltYWdlczoKaW1hZ2VzOjU2Nw==";
+        const result = common.getEncodedContent(dockerVersion, events, images, taskVersion);
+        assert.equal(result, expected, "encoded content didn't match");
+    });
 });
