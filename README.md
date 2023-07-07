@@ -9,6 +9,7 @@ An extension for Azure DevOps that contributes a build task to run the [Microsof
 * Execution of a full suite of security tools
 * Normalized processing of results into the SARIF format
 * Build breaks and more
+* Captures the container images pushed in a build run 
 
 ## Basic
 
