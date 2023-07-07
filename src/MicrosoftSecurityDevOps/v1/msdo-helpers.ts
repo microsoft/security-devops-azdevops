@@ -39,11 +39,11 @@ export function getTaskVersion(taskPath?: string): string {
     try {
         // If the task path is not provided, use the current directory.
         var taskJsonPath = taskPath ? taskPath : path.join(__dirname, "task.json");
-        console.log("taskJsonPath: " + taskJsonPath);
+        tl.debug("taskJsonPath: " + taskJsonPath);
         var taskJsonVersion = JSON.parse(fs.readFileSync(taskJsonPath, 'utf8')).version;
         return taskJsonVersion.Major + "." + taskJsonVersion.Minor + "." + taskJsonVersion.Patch;
     } catch (error) {
-        console.log("Error occurred while getting task version: " + error);
+        tl.debug("Error occurred while getting task version: " + error);
         return Constants.Unknown;
     }
 }

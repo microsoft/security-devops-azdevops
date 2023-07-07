@@ -258,7 +258,7 @@
             WorkingDirectory="$(StagingDirectory)" />
     </Target>
 
-    <Target Name="Build" DependsOnTargets="ValidateConfiguration;Compile;CompileTests;Stage;Test;Ext-Build"></Target>
+    <Target Name="Build" DependsOnTargets="ValidateConfiguration;Compile;Stage;Test;Ext-Build"></Target>
 
     <Target Name="Ext-GetRollbackVersion">
         <Message Text="Getting rollback extension version..." />

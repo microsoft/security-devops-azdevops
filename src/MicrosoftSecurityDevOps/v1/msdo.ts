@@ -1,6 +1,5 @@
 import tl = require('azure-pipelines-task-lib/task');
-import { CommandType, getTaskVersion, execTaskCmdSync, getEncodedContent, Constants } from './msdo-helpers';
-import { IExecOptions } from 'azure-pipelines-task-lib/toolrunner';
+import { CommandType, getTaskVersion } from './msdo-helpers';
 import { IMicrosoftSecurityDevOps } from './msdo-interface';
 import * as client from '@microsoft/security-devops-azdevops-task-lib/msdo-client';
 import * as msdoCommon from '@microsoft/security-devops-azdevops-task-lib/msdo-common';
@@ -11,60 +10,11 @@ import * as msdoCommon from '@microsoft/security-devops-azdevops-task-lib/msdo-c
 */
 export class MicrosoftSecurityDevOps implements IMicrosoftSecurityDevOps {
     private readonly commandType: CommandType;
-    private readonly version: string;
-    private readonly imageOptions: IExecOptions = {
-        silent: true
-    };
+    readonly succeedOnError: boolean;
 
-    constructor(inputString: string) {
-        this.commandType = inputString as CommandType;
-        this.version = getTaskVersion();
-        tl.debug("Task version: " + this.version);
-    }
-
-    /*
-    * Set the start time of the job run.
-    */
-    private runPreJob() {
-        const startTime = new Date().toISOString();
-        tl.setVariable(Constants.PreJobStartTime, startTime);
-    }
-
-    /*
-    * Using the start time, fetch the docker events and docker images in this job run and log the encoded output
-    */
-    private runPostJob() {
-        let startTime = tl.getVariable(Constants.PreJobStartTime);
-        if (startTime == undefined) {
-            throw new Error(Constants.PreJobStartTime + " variable not set");
-        }
-        let dockerVersion = execTaskCmdSync("docker", ["--version"], this.imageOptions);
-        
-        let events = execTaskCmdSync("docker", [
-            "events",
-            "--since",
-            startTime,
-            "--until",
-            new Date().toISOString(),
-            "--filter",
-            "event=push",
-            "--filter",
-            "type=image",
-            "--format",
-            "ID={{.ID}}"
-            ], this.imageOptions);
-                
-        let images = execTaskCmdSync("docker", [
-            "images",
-            "--format",
-            "CreatedAt={{.CreatedAt}}::Repo={{.Repository}}::Tag={{.Tag}}::Digest={{.Digest}}"
-            ], this.imageOptions);
-        
-        console.log(getEncodedContent(
-            dockerVersion,
-            events,
-            images,
-            this.version));
+    constructor(commandType: CommandType) {
+        this.succeedOnError = false;
+        this.commandType = commandType;
     }
 
     private async runMsdo() {
@@ -144,12 +94,6 @@ export class MicrosoftSecurityDevOps implements IMicrosoftSecurityDevOps {
     */
     async run() {
         switch (this.commandType) {
-            case CommandType.PreJob:
-                this.runPreJob();
-                break;
-            case CommandType.PostJob:
-                this.runPostJob();
-                break;
             case CommandType.Run:
                 await this.runMsdo();
                 break;
