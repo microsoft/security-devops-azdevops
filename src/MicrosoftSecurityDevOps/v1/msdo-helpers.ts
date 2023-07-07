@@ -2,6 +2,7 @@ import path from "path";
 import fs from "fs";
 import { IExecOptions } from "azure-pipelines-task-lib/toolrunner";
 import tl = require('azure-pipelines-task-lib/task');
+import os from 'os';
 
 
 /**
@@ -65,8 +66,8 @@ export function execTaskCmdSync(cmd: string, args: string[], options?: IExecOpti
         Stdout: ${cmdExecute.stdout}. 
         Stderr: ${cmdExecute.stderr}`);
     }
-
-    return cmdExecute.stdout.trim();
+    var stdOut = cmdExecute.stdout || "";
+    return stdOut.trim();
 }
 
 /**
@@ -108,4 +109,15 @@ export function getEncodedContent(
     data.push(sectionDelim + "Images:");
     data.push(dockerImages);
     return encode(data.join("\n"));
+}
+
+/**
+ * Writes the specified data to the specified output stream, followed by the platform-specific end-of-line character.
+ * If no output stream is specified, the data is written to the standard output stream.
+ * 
+ * @param data - The data to write to the output stream.
+ * @param outStream - Optional. The output stream to write the data to. Defaults to the standard output stream.
+ */
+export function writeToOutStream(data: string, outStream: NodeJS.WriteStream = process.stdout): void {
+    outStream.write(data + os.EOL);
 }
