@@ -8,7 +8,7 @@ import tl = require('azure-pipelines-task-lib/task');
  * Enum for the possible inputs for the task (specified in task.json)
  */
 export enum Inputs {
-    CommandType = 'Command'
+    CommandType = 'command'
 }
 
 /*
