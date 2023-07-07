@@ -5,14 +5,14 @@ import tl = require('azure-pipelines-task-lib/task');
 
 
 /**
- * Enum for the possible inputs for the task
+ * Enum for the possible inputs for the task (specified in task.json)
  */
 export enum Inputs {
-    CommandType = 'commandType'
+    CommandType = 'Command'
 }
 
 /*
-* Enum for the command type input
+* Enum for the possible values for the Inputs.CommandType (specified in task.json)
 */
 export enum CommandType {
     PreJob = 'pre-job',
@@ -24,7 +24,6 @@ export enum CommandType {
  * Enum for defining constants used in the task.
  */
 export enum Constants {
-    // Unknown value
     Unknown = "unknown",
     PreJobStartTime = "PREJOBSTARTTIME"
 }
