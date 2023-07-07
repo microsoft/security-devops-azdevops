@@ -1,0 +1,56 @@
+import tl = require('azure-pipelines-task-lib/task');
+import { MicrosoftSecurityDevOps } from './msdo';
+import { Inputs, CommandType, getTaskVersion } from './msdo-helpers';
+import { IMicrosoftSecurityDevOps, IMicrosoftSecurityDevOpsFactory } from './msdo-interface';
+import { ContainerMapping } from './container-mapping';
+
+let succeedOnError = false;
+
+/**
+ * Returns an instance of IMicrosoftSecurityDevOps based on the input command type.
+ * @param inputString - The input command type.
+ * @returns An instance of IMicrosoftSecurityDevOps.
+ * @throws An error if the input command type is invalid.
+ */
+function _getMsdoRunner(inputString: string): IMicrosoftSecurityDevOps {
+    var commandType = inputString as CommandType;
+    switch (commandType) {
+        case CommandType.PreJob:
+        case CommandType.PostJob:
+            return _getExecutor(ContainerMapping, commandType);
+        case CommandType.Run:
+            return _getExecutor(MicrosoftSecurityDevOps, commandType);
+        default:
+            throw new Error(`Invalid command type for the task: ${this.commandType}`);
+    }
+}
+
+/**
+ * Returns an instance of IMicrosoftSecurityDevOps based on the input runner and command type.
+ * (This is used to enforce strong typing for the inputs for the runner).
+ * @param runner - The runner to use to create the instance of IMicrosoftSecurityDevOps.
+ * @param commandType - The input command type.
+ * @returns An instance of IMicrosoftSecurityDevOps.
+ */
+function _getExecutor(runner: IMicrosoftSecurityDevOpsFactory, commandType: CommandType): IMicrosoftSecurityDevOps {
+    return new runner(commandType);
+}
+
+async function run() {
+    const commandType: string = tl.getInput(Inputs.CommandType, false) || CommandType.Run;
+    tl.debug('Running Command: ' + commandType);
+    const msdoRunner = _getMsdoRunner(commandType);
+    succeedOnError = msdoRunner.succeedOnError;
+    tl.debug("MSDO Task version: " + getTaskVersion());
+    await msdoRunner.run();
+}
+
+run().catch(error => {
+    if (succeedOnError) {
+        console.log('Ran into error: ' + error);
+        // Always mark it as success even on error
+        tl.setResult(tl.TaskResult.Succeeded, 'Finished execution', true);
+    } else {
+        tl.setResult(tl.TaskResult.Failed, error);
+    }
+});
