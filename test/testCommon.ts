@@ -8,6 +8,6 @@ export enum TestConstants {
     Error = 'Error',
     Success = 'Success',
     TaskTestTrace = 'TASK_TEST_TRACE',
-    MockReturnCode = 'MOCK_RETURN_CODE',
+    MockResponse = 'MOCK_RESPONSE',
     InputPrefix = 'INPUT_'
 };

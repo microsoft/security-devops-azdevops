@@ -1,6 +1,6 @@
 import tl = require('azure-pipelines-task-lib/task');
 import { MicrosoftSecurityDevOps } from './msdo';
-import { Inputs, CommandType, getTaskVersion } from './msdo-helpers';
+import { Inputs, CommandType, getTaskVersion, writeToOutStream } from './msdo-helpers';
 import { IMicrosoftSecurityDevOps, IMicrosoftSecurityDevOpsFactory } from './msdo-interface';
 import { ContainerMapping } from './container-mapping';
 
@@ -47,7 +47,7 @@ async function run() {
 
 run().catch(error => {
     if (succeedOnError) {
-        console.log('Ran into error: ' + error);
+        writeToOutStream('Ran into error: ' + error);
         // Always mark it as success even on error
         tl.setResult(tl.TaskResult.Succeeded, 'Finished execution', true);
     } else {

@@ -7,11 +7,18 @@ let taskPath = path.join(stagingDirectory, 'MicrosoftSecurityDevOps', 'v1', 'ind
 
 let tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
-let rc = process.env[TestConstants.MockReturnCode] || '0';
-var response = <TaskLibAnswerExecResult>{
-    code: +rc,
-    stdout: +rc != 0 ? TestConstants.Error : TestConstants.Success
+let successResponse: TaskLibAnswerExecResult = {
+    code: 0,
+    stdout: TestConstants.Success
 };
 
-tmr.registerMockExport('execSync', () => response);
+let response: string = process.env[TestConstants.MockResponse];
+let mockResponse: TaskLibAnswerExecResult =  response ? JSON.parse(response) : successResponse; 
+
+var finalResponse = <TaskLibAnswerExecResult>{
+    code: mockResponse.code,
+    stdout: mockResponse.stdout,
+};
+
+tmr.registerMockExport('execSync', () => finalResponse);
 tmr.run();
