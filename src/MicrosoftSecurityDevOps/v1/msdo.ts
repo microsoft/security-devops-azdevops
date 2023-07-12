@@ -1,5 +1,5 @@
 import tl = require('azure-pipelines-task-lib/task');
-import { CommandType, getTaskVersion } from './msdo-helpers';
+import { CommandType } from './msdo-helpers';
 import { IMicrosoftSecurityDevOps } from './msdo-interface';
 import * as client from '@microsoft/security-devops-azdevops-task-lib/msdo-client';
 import * as msdoCommon from '@microsoft/security-devops-azdevops-task-lib/msdo-common';

@@ -51,10 +51,10 @@ describe('Container Mapping tests', function () {
         process.env[TestConstants.InputPrefix + Inputs.CommandType] = CommandType.PostJob;
         let mockResponse: TaskLibAnswerExecResult = {
             code: 100,
-            stdout: TestConstants.Error
+            stdout: TestConstants.Error + " Exit Code: 100"
         };
         process.env[TestConstants.MockResponse] = JSON.stringify(mockResponse);
-        process.env[helpers.Constants.PreJobStartTime] = new Date().toISOString();;
+        process.env[helpers.Constants.PreJobStartTime] = curTime;
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(conMapTestFile);
         tr.run();
         assert.equal(tr.succeeded, true, 'should have succeeded:\n' + tr.stdout);
@@ -82,7 +82,7 @@ describe('Container Mapping tests', function () {
         process.env[TestConstants.MockResponse] = JSON.stringify(mockResponse);
         let tr: ttm.MockTestRunner = new ttm.MockTestRunner(conMapTestFile);
         tr.run();
-        var expectedEncodedOutput = helpers.getEncodedContent('', '', '');
+        var expectedEncodedOutput = helpers.getEncodedContent(undefined, '', '');
         assert.equal(tr.succeeded, true, 'should have succeeded:\n' + tr.stdout);
         assert.equal(tr.stdOutContained('code=NoDockerEvents'), true, "Issue not reported:\n" + tr.stdout);
         assert.equal(tr.stdOutContained(expectedEncodedOutput), true, "Encoded output not present:\n" + tr.stdout);

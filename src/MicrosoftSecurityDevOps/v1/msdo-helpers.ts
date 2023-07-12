@@ -3,6 +3,7 @@ import fs from "fs";
 import { IExecOptions } from "azure-pipelines-task-lib/toolrunner";
 import tl = require('azure-pipelines-task-lib/task');
 import os from 'os';
+import { Writable } from "stream";
 
 
 /**
@@ -102,13 +103,13 @@ export function getEncodedContent(
     sectionDelim: string = ":::"
 ): string {
     let data : string[] = [];
-    data.push(dockerVersion);
+    data.push("DV: " + dockerVersion);
     data.push("Version: " + taskVersion);
     data.push(sectionDelim + "Events:");
     data.push(dockerEvents);
     data.push(sectionDelim + "Images:");
     data.push(dockerImages);
-    return encode(data.join("\n"));
+    return encode(data.join(os.EOL));
 }
 
 /**
@@ -118,6 +119,6 @@ export function getEncodedContent(
  * @param data - The data to write to the output stream.
  * @param outStream - Optional. The output stream to write the data to. Defaults to the standard output stream.
  */
-export function writeToOutStream(data: string, outStream: NodeJS.WriteStream = process.stdout): void {
-    outStream.write(data + os.EOL);
+export function writeToOutStream(data: string, outStream: Writable = process.stdout): void {
+    outStream.write(data.trim() + os.EOL);
 }
