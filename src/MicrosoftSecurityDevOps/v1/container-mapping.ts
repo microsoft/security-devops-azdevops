@@ -1,16 +1,13 @@
-import { IExecOptions } from "azure-pipelines-task-lib/toolrunner";
-import { CommandType, Constants, execTaskCmdSync, getEncodedContent, writeToOutStream } from "./msdo-helpers";
+import { CommandType, Constants, getEncodedContent, writeToOutStream } from "./msdo-helpers";
 import { IMicrosoftSecurityDevOps } from "./msdo-interface";
 import tl = require('azure-pipelines-task-lib/task');
+import { CommandExecutor, ICommandResult } from "./command-executor";
 
 /**
  * Represents the tasks for container mapping that are used to fetch Docker images pushed in a job run.
  */
 export class ContainerMapping implements IMicrosoftSecurityDevOps {
     private readonly commandType: CommandType;
-    private readonly imageOptions: IExecOptions = {
-        silent: true
-    };
 
     readonly succeedOnError: boolean;
 
@@ -30,46 +27,59 @@ export class ContainerMapping implements IMicrosoftSecurityDevOps {
     /*
     * Using the start time, fetch the docker events and docker images in this job run and log the encoded output
     */
-    private runPostJob() {
+    private async runPostJob() {
         let startTime = tl.getVariable(Constants.PreJobStartTime);
         if (startTime == undefined) {
             throw new Error(Constants.PreJobStartTime + " variable not set");
         }
-        let dockerVersion = execTaskCmdSync("docker", ["--version"], this.imageOptions);
 
-        let events = execTaskCmdSync("docker", [
-            "events",
-            "--since",
-            startTime,
-            "--until",
-            new Date().toISOString(),
-            "--filter",
-            "event=push",
-            "--filter",
-            "type=image",
-            "--format",
-            "ID={{.ID}}"
-        ], this.imageOptions);
+        // Initialize the commands 
+        let dockerVersionCmd = new CommandExecutor('docker', '--version');
+        let eventsCmd = new CommandExecutor('docker', `events --since ${startTime} --until ${new Date().toISOString()} --filter event=push --filter type=image --format ID={{.ID}}`);
+        let imagesCmd = new CommandExecutor('docker', 'images --format CreatedAt={{.CreatedAt}}::Repo={{.Repository}}::Tag={{.Tag}}::Digest={{.Digest}}');
 
-        var images = "";
-        if (events && events.length > 0) {
-            // Only fetch Docker images if events found to avoid unnecessary calls and save time
-            images = execTaskCmdSync("docker", [
-                "images",
-                "--format",
-                "CreatedAt={{.CreatedAt}}::Repo={{.Repository}}::Tag={{.Tag}}::Digest={{.Digest}}"
-            ], this.imageOptions);
+        // Execute all commands in parallel
+        let dvPromise : Promise<ICommandResult> = dockerVersionCmd.execute();
+        let evPromise : Promise<ICommandResult> = eventsCmd.execute();
+        let imPromise : Promise<ICommandResult> = imagesCmd.execute();
+
+        // Wait for Docker version
+        let dockerVersion: ICommandResult = await dvPromise;
+        if (dockerVersion.code != 0) {
+            writeToOutStream(`Error fetching Docker Version: ${dockerVersion.output}`);
+            dockerVersion.output = Constants.Unknown;
         }
-        else {
+        const cleanedDockerVersion = CommandExecutor.removeCommandFromOutput(dockerVersion.output);
+        tl.debug(`Docker Version: ${cleanedDockerVersion}`);
+
+        // Wait for Docker events command to verify any images were built on this run
+        let events: ICommandResult = await evPromise;
+        if (events.code != 0) {
+            throw new Error(`Unable to fetch Docker events: ${events.output}`);
+        }
+
+        const cleanedEventsOutput = CommandExecutor.removeCommandFromOutput(events.output);
+        var images: ICommandResult;
+        if (!cleanedEventsOutput) {
+            tl.debug(`No Docker events found`);
             // Log an issue if no events found to parse from the backend from the ADO timeline
             // We don't log a message to avoid any warning from popping up in the console output of the task
             tl.logIssue(tl.IssueType.Warning, "", null, null, null, "NoDockerEvents");
+            // Initialize an empty Command Result for Docker images
+            images = <ICommandResult>{ code: 0, output: "" };
+        }
+        else {
+            // Wait for Docker images command only if events were found
+            images = await imPromise;
+            if (images.code != 0) {
+                throw new Error(`Unable to fetch Docker images: ${images.output}`);
+            }
         }
 
         writeToOutStream(getEncodedContent(
-            dockerVersion,
-            events,
-            images));
+            cleanedDockerVersion, 
+            cleanedEventsOutput, 
+            CommandExecutor.removeCommandFromOutput(images.output)));
     }
 
     /*
@@ -87,7 +97,7 @@ export class ContainerMapping implements IMicrosoftSecurityDevOps {
                     this.runPreJob();
                     break;
                 case CommandType.PostJob:
-                    this.runPostJob();
+                    await this.runPostJob();
                     break;
                 default:
                     throw new Error(`Invalid command type for Container Mapping: ${this.commandType}`);

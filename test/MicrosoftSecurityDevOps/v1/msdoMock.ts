@@ -15,10 +15,18 @@ let successResponse: TaskLibAnswerExecResult = {
 let response: string = process.env[TestConstants.MockResponse];
 let mockResponse: TaskLibAnswerExecResult =  response ? JSON.parse(response) : successResponse; 
 
-var finalResponse = <TaskLibAnswerExecResult>{
-    code: mockResponse.code,
-    stdout: mockResponse.stdout,
-};
+class ExecutorMock {
+    public async execute() {
+        return Promise.resolve({code: mockResponse.code, output: mockResponse.stdout});
+    }
 
-tmr.registerMockExport('execSync', () => finalResponse);
+    public static removeCommandFromOutput(output: string) : string {
+        return output;
+    }
+}
+
+tmr.registerMock('./command-executor', {
+    CommandExecutor: ExecutorMock
+});
+
 tmr.run();
