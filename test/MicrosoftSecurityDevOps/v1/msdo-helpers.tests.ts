@@ -25,7 +25,7 @@ describe('MSDO Helper tests', function () {
         const taskVersion = "0.0.1";
         const events = "events:123";
         const images = "images:567";
-        const expected = "RFY6IDEuNy4yDQpWZXJzaW9uOiAwLjAuMQ0KOjo6RXZlbnRzOg0KZXZlbnRzOjEyMw0KOjo6SW1hZ2VzOg0KaW1hZ2VzOjU2Nw==";
+        const expected = "RFY6IDEuNy4yDQpWZXJzaW9uOiAwLjAuMQ0KRXZlbnRzOg0KZXZlbnRzOjEyMw0KSW1hZ2VzOg0KaW1hZ2VzOjU2Nw==";
         const result = helpers.getEncodedContent(dockerVersion, events, images, taskVersion);
         assert.equal(result, expected, "encoded content didn't match");
     });

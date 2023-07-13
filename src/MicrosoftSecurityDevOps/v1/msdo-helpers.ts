@@ -99,15 +99,14 @@ export function getEncodedContent(
     dockerVersion: string,
     dockerEvents: string,
     dockerImages: string,
-    taskVersion: string = getTaskVersion(),
-    sectionDelim: string = ":::"
+    taskVersion: string = getTaskVersion()
 ): string {
     let data : string[] = [];
     data.push("DV: " + dockerVersion);
     data.push("Version: " + taskVersion);
-    data.push(sectionDelim + "Events:");
+    data.push("Events:");
     data.push(dockerEvents);
-    data.push(sectionDelim + "Images:");
+    data.push("Images:");
     data.push(dockerImages);
     return encode(data.join(os.EOL));
 }
