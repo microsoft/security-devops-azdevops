@@ -1,5 +1,4 @@
-import { IExecOptions } from "azure-pipelines-task-lib/toolrunner";
-import { CommandType, Constants, execTaskCmdSync, getEncodedContent, writeToOutStream } from "./msdo-helpers";
+import { CommandType, Constants, getEncodedContent, writeToOutStream } from "./msdo-helpers";
 import { IMicrosoftSecurityDevOps } from "./msdo-interface";
 import tl = require('azure-pipelines-task-lib/task');
 import { CommandExecutor, ICommandResult } from "./command-executor";

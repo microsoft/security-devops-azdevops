@@ -8,16 +8,17 @@ export interface ICommandResult {
     output: string;
 }
 
-export class CommandExecutor extends ToolRunner {
+export class CommandExecutor {
     private readonly timeout: number;
     private timer: NodeJS.Timeout;
     private chunks: Buffer[];
     private outStream: Writable;
     private readonly _name: string;
+    private toolRunner: ToolRunner;
     
     constructor(toolName: string, argLine: string, timeout: number = 60000) {
-        super(toolName);
-        this.line(argLine);
+        this.toolRunner = new ToolRunner(toolName);
+        this.toolRunner.line(argLine);
         this._name = `${toolName} ${argLine}`;
         this.timeout = timeout;
         this.chunks = [];
@@ -32,7 +33,6 @@ export class CommandExecutor extends ToolRunner {
 
     public async execute(): Promise<ICommandResult> {
         this.startTimer();
-        // writeToOutStream(`Executing command: ${this._name} on ${new Date().toISOString()}`, this.outStream);
         var options: IExecOptions = {
             silent: false,
             outStream: this.outStream,
@@ -41,7 +41,7 @@ export class CommandExecutor extends ToolRunner {
         let exitCode = -1;
         
         try {
-            exitCode = await super.exec(options);
+            exitCode = await this.toolRunner.exec(options);
         } catch (error) {
             writeToOutStream(`Error executing command with EC=${exitCode}: ${error}`, this.outStream);
         }
@@ -54,7 +54,7 @@ export class CommandExecutor extends ToolRunner {
     private startTimer: () => void = () => {
         this.timer = setTimeout(() => {
             writeToOutStream(`Timeout reached. Killing process`, this.outStream);
-            this.killChildProcess();
+            this.toolRunner.killChildProcess();
         }, this.timeout);
     };
 
