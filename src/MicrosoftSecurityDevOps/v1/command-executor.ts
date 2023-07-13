@@ -1,22 +1,70 @@
 import { IExecOptions, ToolRunner } from "azure-pipelines-task-lib/toolrunner";
 import { Writable } from "stream";
 import { writeToOutStream } from "./msdo-helpers";
-import os from 'os';
+import * as os from 'os';
 
+/**
+ * Represents the result of a command execution.
+ */
 export interface ICommandResult {
+    /**
+     * The exit code of the command.
+     */
     code: number;
+    /**
+     * The output of the command (Currently the errors are also forwarded to the output)
+     */
     output: string;
 }
 
-export class CommandExecutor {
+/**
+ * Represents an executor and returns the result of the execution.
+ */
+interface IExecutor {
+    /**
+     * Executes the command line tool and returns the result of the execution.
+     * @returns A promise that resolves to an object containing the exit code and output of the command.
+     */
+    execute(): Promise<ICommandResult>;
+}
+
+/**
+ * Represents an executor that executes a command line tool (abstraction over the `azure-pipelines-task-lib/toolrunner.ToolRunner`).
+ * The executor will enforce a timeout on the execution of the command and kill the child process.
+ */
+export class CommandExecutor implements IExecutor {
+    /**
+     * The timeout for the command execution in milliseconds.
+     */
     private readonly timeout: number;
+    /**
+     * The timer used to enforce the timeout.
+     */
     private timer: NodeJS.Timeout;
+    /**
+     * The chunks of output received from the command execution.
+     */
     private chunks: Buffer[];
+    /**
+     * The writable stream used to capture the output of the command execution.
+     */
     private outStream: Writable;
+    /**
+     * The name of the command being executed.
+     */
     private readonly _name: string;
+    /**
+     * The tool runner used to execute the command.
+     */
     private toolRunner: ToolRunner;
     
-    constructor(toolName: string, argLine: string, timeout: number = 60000) {
+    /**
+     * Creates a new instance of the CommandExecutor class.
+     * @param toolName The name of the command line tool to execute.
+     * @param argLine The arguments to pass to the command line tool.
+     * @param timeout The timeout for the command execution in milliseconds (Defaults to a minute)
+     */
+    constructor(toolName: string, argLine: string, timeout: number = 60*1000) {
         this.toolRunner = new ToolRunner(toolName);
         this.toolRunner.line(argLine);
         this._name = `${toolName} ${argLine}`;
@@ -31,6 +79,9 @@ export class CommandExecutor {
         });
     }
 
+    /**
+     * <inheritdoc/>
+     */
     public async execute(): Promise<ICommandResult> {
         this.startTimer();
         var options: IExecOptions = {
@@ -51,6 +102,9 @@ export class CommandExecutor {
         return res;
     }
 
+    /**
+     * Starts the timer used to enforce the timeout.
+     */
     private startTimer: () => void = () => {
         this.timer = setTimeout(() => {
             writeToOutStream(`Timeout reached. Killing process`, this.outStream);
@@ -58,12 +112,19 @@ export class CommandExecutor {
         }, this.timeout);
     };
 
+    /**
+     * Stops the timer used to enforce the timeout.
+     */
     private stopTimer: () => void = () => {
         if (this.timer) {
             clearTimeout(this.timer);
         }
     }
 
+    /**
+     * Cleans up the output of the command execution by removing empty lines and trimming whitespace.
+     * @returns The cleaned up output of the command execution.
+     */
     private getCleanedOutput: () => string = () => {
         var cleanedOutput = [];
         Buffer.concat(this.chunks).toString().split(os.EOL).forEach((line) => {
@@ -74,6 +135,11 @@ export class CommandExecutor {
         return cleanedOutput.join(os.EOL).trim();
     }
 
+    /**
+     * Removes the [command] prefix from the output of the command execution.
+     * @param output The output of the command execution.
+     * @returns The output of the command execution without the command prefix.
+     */
     public static removeCommandFromOutput(output: string): string {
         // Eg: [command]C:\Program Files\Docker\docker.exe --version
         return output.replace(/\[command\](.*)\s?/g, "").trim();

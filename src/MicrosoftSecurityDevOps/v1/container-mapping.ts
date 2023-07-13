@@ -43,31 +43,33 @@ export class ContainerMapping implements IMicrosoftSecurityDevOps {
         let evPromise : Promise<ICommandResult> = eventsCmd.execute();
         let imPromise : Promise<ICommandResult> = imagesCmd.execute();
 
-        // Initialize an empty Command Result for Docker images
-        let images: ICommandResult = <ICommandResult>{ code: 0, output: "" };
-
         // Wait for Docker version
         let dockerVersion: ICommandResult = await dvPromise;
         if (dockerVersion.code != 0) {
             writeToOutStream(`Error fetching Docker Version: ${dockerVersion.output}`);
             dockerVersion.output = Constants.Unknown;
         }
+        const cleanedDockerVersion = CommandExecutor.removeCommandFromOutput(dockerVersion.output);
+        tl.debug(`Docker Version: ${cleanedDockerVersion}`);
 
-        // Wait for Docker events to verify any images were built on this run
+        // Wait for Docker events command to verify any images were built on this run
         let events: ICommandResult = await evPromise;
         if (events.code != 0) {
             throw new Error(`Unable to fetch Docker events: ${events.output}`);
         }
 
         const cleanedEventsOutput = CommandExecutor.removeCommandFromOutput(events.output);
+        var images: ICommandResult;
         if (!cleanedEventsOutput) {
-            writeToOutStream(`No Docker events found`);
+            tl.debug(`No Docker events found`);
             // Log an issue if no events found to parse from the backend from the ADO timeline
             // We don't log a message to avoid any warning from popping up in the console output of the task
             tl.logIssue(tl.IssueType.Warning, "", null, null, null, "NoDockerEvents");
+            // Initialize an empty Command Result for Docker images
+            images = <ICommandResult>{ code: 0, output: "" };
         }
         else {
-            // Wait for Docker images only if events were found
+            // Wait for Docker images command only if events were found
             images = await imPromise;
             if (images.code != 0) {
                 throw new Error(`Unable to fetch Docker images: ${images.output}`);
@@ -75,7 +77,7 @@ export class ContainerMapping implements IMicrosoftSecurityDevOps {
         }
 
         writeToOutStream(getEncodedContent(
-            CommandExecutor.removeCommandFromOutput(dockerVersion.output), 
+            cleanedDockerVersion, 
             cleanedEventsOutput, 
             CommandExecutor.removeCommandFromOutput(images.output)));
     }

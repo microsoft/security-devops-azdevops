@@ -15,10 +15,7 @@ let successResponse: TaskLibAnswerExecResult = {
 let response: string = process.env[TestConstants.MockResponse];
 let mockResponse: TaskLibAnswerExecResult =  response ? JSON.parse(response) : successResponse; 
 
-export class ExecutorMock {
-    constructor() {
-    }
-
+class ExecutorMock {
     public async execute() {
         return Promise.resolve({code: mockResponse.code, output: mockResponse.stdout});
     }

@@ -36,7 +36,7 @@ describe('Command Executor tests', function () {
         done();
     });
 
-    it('should execute commands with error', function(done: Mocha.Done) {
+    it('should report error', function(done: Mocha.Done) {
         var mockExec = sinon.stub(MockToolRunner.prototype, 'exec');
         mockExec.rejects('error');
         let executorMock = new executor.CommandExecutor('testTool', 'testArg');
