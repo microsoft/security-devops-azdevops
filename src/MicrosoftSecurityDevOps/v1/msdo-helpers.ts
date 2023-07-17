@@ -102,11 +102,11 @@ export function getEncodedContent(
     taskVersion: string = getTaskVersion()
 ): string {
     let data : string[] = [];
-    data.push("DV: " + dockerVersion);
-    data.push("Version: " + taskVersion);
-    data.push("Events:");
+    data.push("DockerVersion: " + dockerVersion);
+    data.push("TaskVersion: " + taskVersion);
+    data.push("DockerEvents:");
     data.push(dockerEvents);
-    data.push("Images:");
+    data.push("DockerImages:");
     data.push(dockerImages);
     return encode(data.join(os.EOL));
 }
