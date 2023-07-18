@@ -31,25 +31,6 @@ export enum Constants {
 }
 
 /**
- * Gets the version of the task by reading the task.json file.
- * 
- * @param taskPath - Optional path to the task.json file. If not provided, the function will look for it in the default location.
- * @returns The version of the task in the format "Major.Minor.Patch", or Constants.Unknown if an error occurs.
- */
-export function getTaskVersion(taskPath?: string): string {
-    try {
-        // If the task path is not provided, use the current directory.
-        var taskJsonPath = taskPath ? taskPath : path.join(__dirname, "task.json");
-        tl.debug("taskJsonPath: " + taskJsonPath);
-        var taskJsonVersion = JSON.parse(fs.readFileSync(taskJsonPath, 'utf8')).version;
-        return taskJsonVersion.Major + "." + taskJsonVersion.Minor + "." + taskJsonVersion.Patch;
-    } catch (error) {
-        tl.debug("Error occurred while getting task version: " + error);
-        return Constants.Unknown;
-    }
-}
-
-/**
  * Wrapper over the Task.execSync, Execute a command and return its stdout. 
  * Throw an error if the command fails.
  * 
@@ -98,12 +79,10 @@ export const encode = (str: string):string => Buffer.from(str, 'binary').toStrin
 export function getEncodedContent(
     dockerVersion: string,
     dockerEvents: string,
-    dockerImages: string,
-    taskVersion: string = getTaskVersion()
+    dockerImages: string
 ): string {
     let data : string[] = [];
     data.push("DockerVersion: " + dockerVersion);
-    data.push("TaskVersion: " + taskVersion);
     data.push("DockerEvents:");
     data.push(dockerEvents);
     data.push("DockerImages:");
