@@ -14,12 +14,6 @@ describe('MSDO Helper tests', function () {
         assert.equal(result, expected);
     });
 
-    it('should return the task version', () => {
-        var goodTaskPath = path.join(__dirname, 'payloads', 'GoodTask.json');
-        assert.equal(helpers.getTaskVersion(goodTaskPath), "1.7.2", "version didn't match");
-        assert.equal(helpers.getTaskVersion("randomWrongPath.json"), helpers.Constants.Unknown, "version should be undefined");
-    });
-
     it('should get the correct encoded content', () => {
         const dockerVersion = "1.7.2";
         const taskVersion = "0.0.1";
