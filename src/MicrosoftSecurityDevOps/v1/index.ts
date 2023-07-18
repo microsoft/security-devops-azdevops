@@ -1,6 +1,6 @@
 import tl = require('azure-pipelines-task-lib/task');
 import { MicrosoftSecurityDevOps } from './msdo';
-import { Inputs, CommandType, getTaskVersion, writeToOutStream } from './msdo-helpers';
+import { Inputs, CommandType, writeToOutStream } from './msdo-helpers';
 import { IMicrosoftSecurityDevOps, IMicrosoftSecurityDevOpsFactory } from './msdo-interface';
 import { ContainerMapping } from './container-mapping';
 
@@ -41,7 +41,6 @@ async function run() {
     tl.debug('Running Command: ' + commandType);
     const msdoRunner = _getMsdoRunner(commandType);
     succeedOnError = msdoRunner.succeedOnError;
-    tl.debug("MSDO Task version: " + getTaskVersion());
     await msdoRunner.run();
 }
 

@@ -98,12 +98,10 @@ export const encode = (str: string):string => Buffer.from(str, 'binary').toStrin
 export function getEncodedContent(
     dockerVersion: string,
     dockerEvents: string,
-    dockerImages: string,
-    taskVersion: string = getTaskVersion()
+    dockerImages: string
 ): string {
     let data : string[] = [];
     data.push("DockerVersion: " + dockerVersion);
-    data.push("TaskVersion: " + taskVersion);
     data.push("DockerEvents:");
     data.push(dockerEvents);
     data.push("DockerImages:");
