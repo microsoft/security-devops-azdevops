@@ -23,6 +23,10 @@
         <NpmInstall Condition=" '$(NpmInstall)' == '' ">true</NpmInstall>
         <ForceNpmInstall Condition=" '$(Official)' == 'true' ">true</ForceNpmInstall>
         <ForceNpmInstall Condition=" '$(ForceNpmInstall)' == '' ">false</ForceNpmInstall>
+
+        <!-- Targets -->
+        <SkipCompileTsc Condition=" '$(SkipCompileTsc)' == '' ">false</SkipCompileTsc>
+        <SkipCompile Condition=" '$(SkipCompile)' == '' ">false</SkipCompile>
     </PropertyGroup>
 
     <PropertyGroup Label="BuildPaths">
@@ -109,9 +113,24 @@
         <Exec Command="npm install" WorkingDirectory="$(RepoDirectory)" />
     </Target>
 
-    <Target Name="Compile" DependsOnTargets="Clean;NpmInstall-RepoDirectory">
+    <Target
+        Name="CompileTsc"
+        Condition=" '$(SkipCompileTsc)' != 'true' ">
         <Message Text="Compiling Microsoft Security DevOps for Azure DevOps Extension" />
         <Exec Command="npx tsc --outDir &quot;$(StagingDirectory)&quot;" WorkingDirectory="$(SrcDirectory)" />
+    </Target>
+
+    <Target
+        Name="Compile"
+        DependsOnTargets="Clean;NpmInstall-RepoDirectory;CompileTsc"
+        Condition=" '$(SkipCompile)' != 'true' ">
+        <PropertyGroup>
+            <RepoPackageJsonFilePath>$(RepoDirectory)\package.json</RepoPackageJsonFilePath>
+            <SrcNpmrcFilePath>$(SrcDirectory)\.npmrc</SrcNpmrcFilePath>
+        </PropertyGroup>
+
+        <Copy SourceFiles="$(RepoPackageJsonFilePath)" DestinationFiles="$(LibDirectory)\package.json" />
+        <Copy SourceFiles="$(SrcNpmrcFilePath)" DestinationFiles="$(LibDirectory)\.npmrc" />
     </Target>
 
     <Target Name="CompileTests" DependsOnTargets="CleanTests;NpmInstall-RepoDirectory">
@@ -121,28 +140,25 @@
 
     <Target
         Name="NpmInstall-LibDirectory"
+        DependsOnTargets="Stage-LibDirectory"
         Inputs="$(LibDirectory)"
         Outputs="$(LibDirectory)\node_modules"
         Condition=" '$(NpmInstall)' == 'true' AND ('$(ForceNpmInstall)' == 'true' OR EXISTS('$(LibDirectory)\node_modules') != 'true') ">
+        <Message Text="Installing npm packages staging directory: $(StagingDirectory)..." />
+        <Exec Command="npm install --production" WorkingDirectory="$(StagingDirectory)" />
+    </Target>
+
+    <Target Name="Stage" DependsOnTargets="NpmInstall-LibDirectory">
         <PropertyGroup>
-            <RepoPackageJsonFilePath>$(RepoDirectory)\package.json</RepoPackageJsonFilePath>
-            <SrcNpmrcFilePath>$(SrcDirectory)\.npmrc</SrcNpmrcFilePath>
             <StagingNodeModulesBinDirectory>$(LibNodeModulesDirectory)\.bin</StagingNodeModulesBinDirectory>
             <StagingPackageLockJsonFilePath>$(LibNodeModulesDirectory)\.package-lock.json</StagingPackageLockJsonFilePath>
         </PropertyGroup>
 
-        <Copy SourceFiles="$(RepoPackageJsonFilePath)" DestinationFiles="$(LibDirectory)\package.json" />
-        <Copy SourceFiles="$(SrcNpmrcFilePath)" DestinationFiles="$(LibDirectory)\.npmrc" />
-
-        <Message Text="Installing npm packages staging directory: $(StagingDirectory)..." />
-        <Exec Command="npm install --production" WorkingDirectory="$(StagingDirectory)" />
+        <Message Text="Staging extension files to directory: $(StagingDirectory)" />
 
         <RemoveDir Directories="$(StagingNodeModulesBinDirectory)" Condition=" Exists('$(StagingNodeModulesBinDirectory)') " />
         <Delete Files="$(StagingPackageLockJsonFilePath)" Condition=" Exists('$(StagingPackageLockJsonFilePath)') " />
-    </Target>
-
-    <Target Name="Stage" DependsOnTargets="NpmInstall-LibDirectory">
-        <Message Text="Staging extension files to directory: $(StagingDirectory)" />
+        <Delete Files="$(RepoDirectory)/package-lock.json" Condition=" Exists('$(RepoDirectory)/package-lock.json') " />
 
         <!-- Copy the Extension files -->
         <Copy SourceFiles="$(ExtensionManifestFilePath)" DestinationFiles="$(StagedExtensionManifestFilePath)" />
