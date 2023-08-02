@@ -37,7 +37,7 @@
     </PropertyGroup>
 
     <PropertyGroup Label="Scripts">
-        <PowerShellExe Condition=" '$(PowerShellExe)' == '' ">C:\Program Files\PowerShell\7\pwsh.exe</PowerShellExe>
+        <PowerShellExe Condition=" '$(PowerShellExe)' == '' ">powershell.exe</PowerShellExe>
         <GetExtensionVersionScriptPath>$(ScriptsDirectory)\Get-ExtensionVersion.ps1</GetExtensionVersionScriptPath>
         <RollbackScriptPath>$(ScriptsDirectory)\Rollback.ps1</RollbackScriptPath>
         <SetPublisherInfoScriptPath>$(ScriptsDirectory)\Set-PublisherInfo.ps1</SetPublisherInfoScriptPath>
