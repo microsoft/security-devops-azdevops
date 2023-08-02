@@ -140,7 +140,6 @@
 
     <Target
         Name="NpmInstall-LibDirectory"
-        DependsOnTargets="Stage-LibDirectory"
         Inputs="$(LibDirectory)"
         Outputs="$(LibDirectory)\node_modules"
         Condition=" '$(NpmInstall)' == 'true' AND ('$(ForceNpmInstall)' == 'true' OR EXISTS('$(LibDirectory)\node_modules') != 'true') ">
