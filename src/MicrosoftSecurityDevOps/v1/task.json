@@ -11,8 +11,8 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 1,
-        "Minor": 7,
-        "Patch": 2
+        "Minor": 8,
+        "Patch": 0
     },
     "preview": true,
     "minimumAgentVersion": "1.83.0",
@@ -24,6 +24,19 @@
         }
     ],
     "inputs": [
+        {
+            "name": "command",
+            "label": "Command",
+            "type": "pickList",
+            "required": false,
+            "helpMarkDown": "The command to run. Default: run",
+            "default": "run",
+            "options": {
+                "run": "Run (Default)",
+                "pre-job": "Pre-Job",
+                "post-job": "Post-Job"
+            }
+        },
         {
             "name": "config",
             "label": "Config",
@@ -99,13 +112,13 @@
     "instanceNameFormat": "Run Microsoft Defender for DevOps",
     "execution": {
         "Node16": {
-            "target": "msdo.js"
+            "target": "index.js"
         },
         "Node10": {
-            "target": "msdo.js"
+            "target": "index.js"
         },
         "Node": {
-            "target": "msdo.js"
+            "target": "index.js"
         }
     }
 }

@@ -29,6 +29,7 @@ bld/
 [Ll]og/
 [Ll]ib/
 **/*.js
+**/*.js.map
 .publishers
 
 # Visual Studio 2015/2017 cache/options directory
@@ -38,6 +39,9 @@ bld/
 
 # Visual Studio 2017 auto generated files
 Generated\ Files/
+
+# VSCode files
+.vscode
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
