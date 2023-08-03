@@ -27,7 +27,7 @@
         {
             "name": "command",
             "label": "Command",
-            "type": "string",
+            "type": "pickList",
             "required": false,
             "helpMarkDown": "The command to run. Default: run",
             "default": "run",
