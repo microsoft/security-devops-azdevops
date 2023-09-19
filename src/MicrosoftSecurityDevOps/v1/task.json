@@ -51,8 +51,9 @@
             "type": "pickList",
             "required": false,
             "helpMarkDown": "The name of a well known Microsoft policy. If no configuration is provided, the policy may instruct MSDO what tools to run. Default: microsoft",
-            "defaultValue": "microsoft",
+            "defaultValue": "azuredevops",
             "options": {
+                "azuredevops": "azuredevops",
                 "microsoft": "microsoft",
                 "none": "none"
             }

@@ -52,5 +52,7 @@ run().catch(error => {
     } else {
         tl.setResult(tl.TaskResult.Failed, error);
     }
-    tl.debug('Effective September 20th 2023, the Secret Scanning option (CredScan) within Microsoft Security DevOps (MSDO) Extension for Azure DevOps is deprecated. MSDO Secret Scanning is replaced by the Configure GitHub Advanced Security for Azure DevOps features - https://learn.microsoft.com/en-us/azure/devops/repos/security/configure-github-advanced-security-features#set-up-secret-scanning.');
+    console.log('------------------------------------------------------------------------------');
+    console.log('Effective September 20th 2023, the Secret Scanning option (CredScan) within Microsoft Security DevOps (MSDO) Extension for Azure DevOps is deprecated. MSDO Secret Scanning is replaced by the Configure GitHub Advanced Security for Azure DevOps features - https://learn.microsoft.com/en-us/azure/devops/repos/security/configure-github-advanced-security-features#set-up-secret-scanning.');
+    console.log('------------------------------------------------------------------------------');
 });
