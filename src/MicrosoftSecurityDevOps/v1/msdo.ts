@@ -35,6 +35,10 @@ export class MicrosoftSecurityDevOps implements IMicrosoftSecurityDevOps {
                 args.push('-p');
                 args.push(policy);
             }
+        } else {
+            // If the policy is not user defined, default to azuredevops
+            args.push('-p');
+            args.push('azuredevops');
         }
     
         let categoriesString: string = tl.getInput('categories');
