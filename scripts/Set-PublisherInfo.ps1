@@ -128,7 +128,9 @@ else # Create a new publisher
 
 Write-Host 'Ensuring all tasks have entries in publishers.json'
 
-$srcTaskNamesSearchPatern = Join-Path $PSScriptRoot '../' 'src' '*'
+$srcTaskNamesSearchPatern = Join-Path $PSScriptRoot '../' 
+$srcTaskNamesSearchPatern = Join-Path $srcTaskNamesSearchPatern 'src'
+$srcTaskNamesSearchPatern = Join-Path $srcTaskNamesSearchPatern '*'
 $taskNames = Get-ChildItem -Path $srcTaskNamesSearchPatern -Directory | Select -ExpandProperty Name
 $newTaskIds = $false
 
