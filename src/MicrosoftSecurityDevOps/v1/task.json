@@ -3,7 +3,7 @@
     "name": "MicrosoftSecurityDevOps",
     "friendlyName": "Microsoft Security DevOps",
     "description": "Run the Microsoft Security DevOps CLI for static analysis.",
-    "helpMarkDown": "Runs the [Microsoft Security DevOps CLI](https://aka.ms/msdo-nuget) for security analysis.",
+    "helpMarkDown": "Runs the [Microsoft Security DevOps CLI](https://aka.ms/msdo-nuget) for security analysis. Effective September 20th 2023, the Secret Scanning option (CredScan) within Microsoft Security DevOps (MSDO) Extension for Azure DevOps is deprecated. MSDO Secret Scanning is replaced by the [Configure GitHub Advanced Security for Azure DevOps features](https://learn.microsoft.com/en-us/azure/devops/repos/security/configure-github-advanced-security-features#set-up-secret-scanning) offering.",
     "category": "Utility",
     "visibility": [
         "Build"
@@ -11,7 +11,7 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 1,
-        "Minor": 8,
+        "Minor": 9,
         "Patch": 0
     },
     "preview": true,
@@ -51,8 +51,9 @@
             "type": "pickList",
             "required": false,
             "helpMarkDown": "The name of a well known Microsoft policy. If no configuration is provided, the policy may instruct MSDO what tools to run. Default: microsoft",
-            "defaultValue": "microsoft",
+            "defaultValue": "azuredevops",
             "options": {
+                "azuredevops": "azuredevops",
                 "microsoft": "microsoft",
                 "none": "none"
             }

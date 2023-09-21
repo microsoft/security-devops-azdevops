@@ -35,6 +35,10 @@ export class MicrosoftSecurityDevOps implements IMicrosoftSecurityDevOps {
                 args.push('-p');
                 args.push(policy);
             }
+        } else {
+            // If the policy is not user defined, default to azuredevops
+            args.push('-p');
+            args.push('azuredevops');
         }
     
         let categoriesString: string = tl.getInput('categories');
@@ -43,7 +47,12 @@ export class MicrosoftSecurityDevOps implements IMicrosoftSecurityDevOps {
             let categories = categoriesString.split(',');
             for (let i = 0; i < categories.length; i++) {
                 let category = categories[i];
-                if (!msdoCommon.isNullOrWhiteSpace(category)) {
+                if (category.toLowerCase() == "secrets" && categories.length == 1) {
+                    console.log('------------------------------------------------------------------------------');
+                    console.log('Effective September 20th 2023, the Secret Scanning option (CredScan) within Microsoft Security DevOps (MSDO) Extension for Azure DevOps is deprecated. MSDO Secret Scanning is replaced by the Configure GitHub Advanced Security for Azure DevOps features - https://learn.microsoft.com/en-us/azure/devops/repos/security/configure-github-advanced-security-features#set-up-secret-scanning.');
+                    console.log('------------------------------------------------------------------------------');
+                    return;
+                } else if (!msdoCommon.isNullOrWhiteSpace(category)) {
                     args.push(category.trim());
                 }
             }
