@@ -173,8 +173,14 @@
         <Message Text="Remove existing task lib directory: $(TaskLibNodeModulesDirectory)" />
         <RemoveDir Directories="$(TaskLibNodeModulesDirectory)" Condition=" Exists('$(TaskLibNodeModulesDirectory)') " />
 
+        <ItemGroup>
+            <TaskLibDistFiles Include="$(TaskLibDistDirectory)\**\*" />
+        </ItemGroup>
+
         <Message Text="Copying sideload build..." />
-        <Copy SourceFiles="$(TaskLibDistDirectory)\**\*" DestinationFiles="$(TaskLibNodeModulesDirectory)\%(RecursiveDir)%(Filename)%(Extension)" />
+        <Copy
+            SourceFiles="@(TaskLibDistFiles)"
+            DestinationFiles="@(TaskLibDistFiles->'$(TaskLibNodeModulesDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 
     <Target Name="Stage" DependsOnTargets="NpmInstall-LibDirectory;Sideload">
