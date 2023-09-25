@@ -20,6 +20,13 @@
         <Official Condition=" '$(Official)' == '' ">false</Official>
         <RunTests Condition=" '$(RunTests)' == '' ">false</RunTests>
         
+        <!--
+        Sideload builds and references the @microsoft/security-devops-azdevops-task-lib repo.
+        This requires it to be cloned to a parallel directory to the extension repo.
+        -->
+        <Sideload Condition=" '$(Sideload)' == '' ">false</Sideload>
+        <SideloadBuild Condition=" '$(SideloadBuild)' == '' ">true</SideloadBuild>
+        
         <NpmInstall Condition=" '$(NpmInstall)' == '' ">true</NpmInstall>
         <ForceNpmInstall Condition=" '$(Official)' == 'true' ">true</ForceNpmInstall>
         <ForceNpmInstall Condition=" '$(ForceNpmInstall)' == '' ">false</ForceNpmInstall>
@@ -147,7 +154,30 @@
         <Exec Command="npm install --production" WorkingDirectory="$(StagingDirectory)" />
     </Target>
 
-    <Target Name="Stage" DependsOnTargets="NpmInstall-LibDirectory">
+    <Target
+        Name="Sideload"
+        Condition=" '$(Sideload)' == 'true' ">
+        <PropertyGroup>
+            <TaskLibSrcDirectory>$(MSBuildThisFileDirectory)..\security-devops-azdevops-task-lib</TaskLibSrcDirectory>
+            <TaskLibDistDirectory>$(TaskLibSrcDirectory)\dist</TaskLibDistDirectory>
+            <TaskLibNodeModulesDirectory>$(LibNodeModulesDirectory)\@microsoft\security-devops-azdevops-task-lib</TaskLibNodeModulesDirectory>
+        </PropertyGroup>
+        <Message Text="Sideload mode enabled. Linking @microsoft/security-devops-azdevops-task-lib" />
+        <Error
+            Condition=" !Exists('$(TaskLibSrcDirectory)') "
+            Text="Could not find task lib repo directory: $(TaskLibSrcDirectory). Please clone the repo to a parallel directory to this extension repo. Repo homepage: https://github.com/microsoft/security-devops-azdevops-task-lib" />
+
+        <Message Condition=" '$(SideloadBuild)' == 'true' " Text="Building sideload project: npm run build" />
+        <Exec Condition=" '$(SideloadBuild)' == 'true' " Command="npm run build" WorkingDirectory="$(TaskLibSrcDirectory)" />
+
+        <Message Text="Remove existing task lib directory: $(TaskLibNodeModulesDirectory)" />
+        <RemoveDir Directories="$(TaskLibNodeModulesDirectory)" Condition=" Exists('$(TaskLibNodeModulesDirectory)') " />
+
+        <Message Text="Copying sideload build..." />
+        <Copy SourceFiles="$(TaskLibDistDirectory)\**\*" DestinationFiles="$(TaskLibNodeModulesDirectory)\%(RecursiveDir)%(Filename)%(Extension)" />
+    </Target>
+
+    <Target Name="Stage" DependsOnTargets="NpmInstall-LibDirectory;Sideload">
         <PropertyGroup>
             <StagingNodeModulesBinDirectory>$(LibNodeModulesDirectory)\.bin</StagingNodeModulesBinDirectory>
             <StagingPackageLockJsonFilePath>$(LibNodeModulesDirectory)\.package-lock.json</StagingPackageLockJsonFilePath>
