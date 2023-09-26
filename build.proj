@@ -269,7 +269,7 @@
     <Target Name="Ext-Build" DependsOnTargets="Ext-Prep;Ext-GetVersion">
         <Message Text="Building DevOps extension..." />
         <Exec
-            Command="npx tfx extension create --manifest-globs &quot;$(StagedExtensionManifestFilePath)&quot; --output-path &quot;$(OutputExtensionFilePath).$(EXTENSION_VERSION).vsix&quot;"
+            Command="npx tfx-cli extension create --manifest-globs &quot;$(StagedExtensionManifestFilePath)&quot; --output-path &quot;$(OutputExtensionFilePath).$(EXTENSION_VERSION).vsix&quot;"
             WorkingDirectory="$(StagingDirectory)" />
     </Target>
 
