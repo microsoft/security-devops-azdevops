@@ -13,7 +13,7 @@
         "test": "npx mocha **/*.tests.js"
     },
     "dependencies": {
-        "@microsoft/security-devops-azdevops-task-lib": "1.8.1",
+        "@microsoft/security-devops-azdevops-task-lib": "1.9.1",
         "azure-pipelines-task-lib": "4.3.1",
         "azure-pipelines-tool-lib": "2.0.4"
     },
