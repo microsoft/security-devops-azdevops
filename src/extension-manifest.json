@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "microsoft-security-devops-azdevops",
   "name": "Microsoft Security DevOps",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "publisher": "ms-securitydevops",
   "description": "Build tasks for performing security analysis.",
   "public": true,
