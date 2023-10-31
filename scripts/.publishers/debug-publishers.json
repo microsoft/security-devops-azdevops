@@ -2,9 +2,9 @@
     "mapping":  {
                     "MicrosoftSecurityDevOps":  "505fbc36-f364-4b95-b1c4-7a3fd78a6559"
                 },
-    "version":  "1.9.0.0",
+    "version":  "1.10.0.0",
     "extensionId":  "microsoft-security-devops-azdevops-debug",
-    "count":  1,
+    "count":  2,
     "publisher":  "ms-secdevops-test",
     "publisherName":  "debug"
 }
