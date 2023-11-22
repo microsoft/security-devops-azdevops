@@ -29,8 +29,9 @@ export class ContainerMapping implements IMicrosoftSecurityDevOps {
     */
     private async runPostJob() {
         let startTime = tl.getVariable(Constants.PreJobStartTime);
-        if (startTime == undefined) {
-            throw new Error(Constants.PreJobStartTime + " variable not set");
+        if (startTime == undefined || startTime.length <= 0) {
+            startTime = new Date(new Date().getTime() - 10000).toISOString();
+            writeToOutStream(Constants.PreJobStartTime + " variable not set/undefined, using now-10secs ");
         }
 
         // Initialize the commands 
