@@ -4,7 +4,7 @@
                 },
     "version":  "1.10.0.0",
     "extensionId":  "microsoft-security-devops-azdevops-debug",
-    "count":  2,
+    "count":  4,
     "publisher":  "ms-secdevops-test",
     "publisherName":  "debug"
 }
