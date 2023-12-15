@@ -1,4 +1,4 @@
-import { stagingDirectory, TestConstants } from '../../../testCommon';
+import { stagingDirectory, TestConstants } from '../../testCommon';
 import { TaskLibAnswerExecResult } from 'azure-pipelines-task-lib/mock-answer';
 import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';

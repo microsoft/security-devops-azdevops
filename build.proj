@@ -7,7 +7,7 @@
         <MsdoDecoratorExtensionId>microsoft-security-devops-azdevops-decorator</MsdoDecoratorExtensionId>
 
         <!-- Set the extension id -->
-        <ExtensionId condition=" '$(ExtensionName)' == '' ">$(MsdoExtensionId)</ExtensionId>
+        <ExtensionId Condition=" '$(ExtensionName)' == '' ">$(MsdoExtensionId)</ExtensionId>
     </PropertyGroup>
 
     <PropertyGroup Label="Directories">
@@ -61,8 +61,8 @@
     <PropertyGroup Label="BuildPaths">
         <OutputDirectory Condition=" '$(OutputDirectory)' == '' ">$(ExtensionBinDirectory)\$(Configuration)</OutputDirectory>
         <StagingDirectory Condition=" '$(StagingDirectory)' == '' ">$(ExtensionLibDirectory)\$(Configuration)</StagingDirectory>
+        <SrcNodeModulesDirectory Condition= " '$(SrcNodeModulesDirectory)' == '' ">$(ExtensionSrcDirectory)\node_modules</SrcNodeModulesDirectory>
         <LibNodeModulesDirectory Condition= " '$(LibNodeModulesDirectory)' == '' ">$(ExtensionLibDirectory)\node_modules</LibNodeModulesDirectory>
-        <RepoNodeModulesDirectory Condition= " '$(RepoNodeModulesDirectory)' == '' ">$(RepoDirectory)\node_modules</RepoNodeModulesDirectory>
     </PropertyGroup>
 
     <PropertyGroup Label="Scripts">
@@ -134,10 +134,10 @@
     </Target>
 
     <Target
-        Name="NpmInstall-RepoDirectory"
+        Name="NpmInstall-ExtensionSrcDirectory"
         Inputs="$(RepoDirectory)"
-        Outputs="$(RepoNodeModulesDirectory)"
-        Condition=" '$(NpmInstall)' == 'true' AND ('$(ForceNpmInstall)' == 'true' OR EXISTS('$(RepoNodeModulesDirectory)') != 'true')">
+        Outputs="$(SrcNodeModulesDirectory)"
+        Condition=" '$(NpmInstall)' == 'true' AND ('$(ForceNpmInstall)' == 'true' OR EXISTS('$(SrcNodeModulesDirectory)') != 'true')">
         <Message Text="Intstalling npm packages in repo directory: $(RepoDirectory)..." />
         <Exec Command="npm install" WorkingDirectory="$(RepoDirectory)" />
     </Target>
@@ -151,7 +151,7 @@
 
     <Target
         Name="Compile"
-        DependsOnTargets="Clean;NpmInstall-RepoDirectory;CompileTsc"
+        DependsOnTargets="Clean;NpmInstall-ExtensionSrcDirectory;CompileTsc"
         Condition=" '$(SkipCompile)' != 'true' ">
         <PropertyGroup>
             <PackageJsonFilePath>$(ExtensionSrcDirectory)\package.json</PackageJsonFilePath>
@@ -162,7 +162,7 @@
         <Copy SourceFiles="$(SrcNpmrcFilePath)" DestinationFiles="$(ExtensionLibDirectory)\.npmrc" />
     </Target>
 
-    <Target Name="CompileTests" DependsOnTargets="CleanTests;NpmInstall-RepoDirectory">
+    <Target Name="CompileTests" DependsOnTargets="CleanTests;NpmInstall-ExtensionSrcDirectory">
         <Message Text="Compiling tests" />
         <Exec Command="npx tsc --outDir &quot;$(TestStagingDirectory)&quot;"  WorkingDirectory="$(TestDirectory)" />
     </Target>

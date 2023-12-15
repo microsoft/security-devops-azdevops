@@ -1,4 +1,4 @@
-import { stagingDirectory } from '../../../testCommon';
+import { stagingDirectory } from '../../testCommon';
 import * as path from 'path';
 import os from 'os';
 import * as sinon from 'sinon';

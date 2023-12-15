@@ -1,5 +1,5 @@
 steps:
-- ${{ if ne(variables['runMicrosoftSecurityDevOps'], 'false') }}:
+- ${{ if and(ne(variables['runMicrosoftSecurityDevOps'], 'false'), not(containsValue(job.steps.*.task.id, '8d616517-6390-454f-b369-6fd038d8fe96'))) }}:
   - task: MicrosoftSecurityDevOps@1
-    displayName: 'Microsoft Security DevOps (auto-injected)'
+    displayName: 'Microsoft Security DevOps (injected from decorator)'
     condition: and(succeeded(), ne(variables['runMicrosoftSecurityDevOps'], 'false'))
