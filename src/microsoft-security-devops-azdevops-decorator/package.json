@@ -6,8 +6,8 @@
     "license": "MIT",
     "repository": "https://github.com/microsoft/microsoft-security-devops-azdevops",
     "scripts": {
-        "build": "dotnet build ./../../build.proj",
-        "compile": "dotnet build ./../../build.proj /t:Compile"
+        "build": "dotnet build ./../../build.proj /p:ExtensionId=microsoft-security-devops-azdevops-decorator",
+        "compile": "dotnet build ./../../build.proj /t:Compile /p:ExtensionId=microsoft-security-devops-azdevops-decorator"
     },
     "dependencies": {
         "azure-pipelines-task-lib": "4.3.1",
