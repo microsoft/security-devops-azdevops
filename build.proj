@@ -16,7 +16,7 @@
         <BinDirectory Condition=" '$(BinDirectory)' == '' ">$(RepoDirectory)\bin</BinDirectory>
         <LibDirectory Condition=" '$(LibDirectory)' == '' ">$(RepoDirectory)\lib</LibDirectory>
         <ScriptsDirectory Condition=" '$(ScriptsDirectory)' == '' ">$(RepoDirectory)\scripts</ScriptsDirectory>
-        <PublishersDirectory Condition=" '$(PublishersDirectory)' == '' ">$(ScriptsDirectory)\publishers</PublishersDirectory>
+        <PublishersDirectory Condition=" '$(PublishersDirectory)' == '' ">$(ScriptsDirectory)\.publishers</PublishersDirectory>
         <SrcDirectory Condition=" '$(SrcDirectory)' == '' ">$(RepoDirectory)\src</SrcDirectory>
         <TestDirectory Condition=" '$(TestDirectory)' == '' ">$(RepoDirectory)\test</TestDirectory>
         <TestStagingDirectory Condition=" '$(TestStagingDirectory)' == '' ">$(TestDirectory)\lib</TestStagingDirectory>
