@@ -1,0 +1,5 @@
+steps:
+- ${{ if ne(variables['runMicrosoftSecurityDevOps'], 'false') }}:
+  - task: MicrosoftSecurityDevOps@1
+    displayName: 'Microsoft Security DevOps (auto-injected)'
+    condition: and(succeeded(), ne(variables['runMicrosoftSecurityDevOps'], 'false'))
