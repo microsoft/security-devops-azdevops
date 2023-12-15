@@ -47,9 +47,15 @@
         <SkipCompile Condition=" '$(SkipCompile)' == '' ">false</SkipCompile>
     </PropertyGroup>
 
-    <PropertyGroup Label="MsdoDecoratorConfiguration">
+    <PropertyGroup
+        Label="MsdoDecoratorConfiguration"
+        Condition=" '$(ExtensionId)' == '$(MsdoDecoratorExtensionId)' ">
+        <!-- Decorator does not have tests to run -->
+        <RunTests>false</RunTests>
         <!-- Decorator does not contribute TypeScript -->
         <SkipCompileTsc>true</SkipCompileTsc>
+        <!-- Decorator does not have a dependency to sideload -->
+        <Sideload>false</Sideload>
     </PropertyGroup>
 
     <PropertyGroup Label="ExtensionPaths">
@@ -139,7 +145,7 @@
         Outputs="$(SrcNodeModulesDirectory)"
         Condition=" '$(NpmInstall)' == 'true' AND ('$(ForceNpmInstall)' == 'true' OR EXISTS('$(SrcNodeModulesDirectory)') != 'true')">
         <Message Text="Intstalling npm packages in repo directory: $(RepoDirectory)..." />
-        <Exec Command="npm install" WorkingDirectory="$(RepoDirectory)" />
+        <Exec Command="npm install" WorkingDirectory="$(ExtensionSrcDirectory)" />
     </Target>
 
     <Target
