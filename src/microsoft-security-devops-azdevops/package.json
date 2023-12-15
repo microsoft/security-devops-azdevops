@@ -1,0 +1,31 @@
+{
+    "name": "microsoft-security-devops-azdevops",
+    "version": "1.11.0",
+    "description": "Microsoft Security DevOps for Azure DevOps.",
+    "author": "Microsoft Corporation",
+    "license": "MIT",
+    "repository": "https://github.com/microsoft/microsoft-security-devops-azdevops",
+    "scripts": {
+        "build": "dotnet build ./../../build.proj",
+        "compile": "dotnet build ./../../build.proj /t:Compile",
+        "compile-tests": "dotnet build ./../../build.proj /t:CopyTestHelpers",
+        "compile-and-test": "dotnet build ./../../build.proj /t:Test /p:RunTests=true",
+        "test": "npx mocha ./../../test/**/*.tests.js"
+    },
+    "dependencies": {
+        "@microsoft/security-devops-azdevops-task-lib": "1.10.1",
+        "azure-pipelines-task-lib": "4.3.1",
+        "azure-pipelines-tool-lib": "2.0.4"
+    },
+    "devDependencies": {
+        "@types/mocha": "^10.0.1",
+        "@types/mockery": "^1.4.30",
+        "@types/node": "^20.3.1",
+        "@types/q": "^1.5.5",
+        "@types/sinon": "^10.0.15",
+        "mocha": "^10.2.0",
+        "sinon": "^15.2.0",
+        "tfx-cli": "^0.15.0",
+        "typescript": "^5.1.3"
+    }
+}

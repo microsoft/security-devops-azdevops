@@ -1,19 +1,15 @@
 {
-    "name": "microsoft-security-devops-azdevops",
-    "version": "1.11.0",
-    "description": "Microsoft Security DevOps for Azure DevOps.",
+    "name": "microsoft-security-devops-azdevops-decorator",
+    "version": "0.1.0",
+    "description": "Microsoft Security DevOps for Azure DevOps Decorator.",
     "author": "Microsoft Corporation",
     "license": "MIT",
     "repository": "https://github.com/microsoft/microsoft-security-devops-azdevops",
     "scripts": {
-        "build": "dotnet build ./build.proj",
-        "compile": "dotnet build ./build.proj /t:Compile",
-        "compile-tests": "dotnet build ./build.proj /t:CopyTestHelpers",
-        "compile-and-test": "dotnet build ./build.proj /t:Test /p:RunTests=true",
-        "test": "npx mocha **/*.tests.js"
+        "build": "dotnet build ./../../build.proj",
+        "compile": "dotnet build ./../../build.proj /t:Compile"
     },
     "dependencies": {
-        "@microsoft/security-devops-azdevops-task-lib": "1.10.1",
         "azure-pipelines-task-lib": "4.3.1",
         "azure-pipelines-tool-lib": "2.0.4"
     },

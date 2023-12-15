@@ -52,11 +52,16 @@
         <SkipCompileTsc>true</SkipCompileTsc>
     </PropertyGroup>
 
-    <PropertyGroup Label="BuildPaths">
+    <PropertyGroup Label="ExtensionPaths">
+        <ExtensionBinDirectory Condition=" '$(ExtensionBinDirectory)' == '' ">$(BinDirectory)\$(ExtensionId)</ExtensionBinDirectory>
+        <ExtensionLibDirectory Condition=" '$(ExtensionLibDirectory)' == '' ">$(LibDirectory)\$(ExtensionId)</ExtensionLibDirectory>
         <ExtensionSrcDirectory Condition=" '$(ExtensionSrcDirectory)' == '' ">$(SrcDirectory)\$(ExtensionId)</ExtensionSrcDirectory>
-        <OutputDirectory Condition=" '$(OutputDirectory)' == '' ">$(BinDirectory)\$(ExtensionId)\$(Configuration)</OutputDirectory>
-        <StagingDirectory Condition=" '$(StagingDirectory)' == '' ">$(LibDirectory)\$(ExtensionId)\$(Configuration)</StagingDirectory>
-        <LibNodeModulesDirectory Condition= " '$(LibNodeModulesDirectory)' == '' ">$(LibDirectory)\node_modules</LibNodeModulesDirectory>
+    </PropertyGroup>
+
+    <PropertyGroup Label="BuildPaths">
+        <OutputDirectory Condition=" '$(OutputDirectory)' == '' ">$(ExtensionBinDirectory)\$(Configuration)</OutputDirectory>
+        <StagingDirectory Condition=" '$(StagingDirectory)' == '' ">$(ExtensionLibDirectory)\$(Configuration)</StagingDirectory>
+        <LibNodeModulesDirectory Condition= " '$(LibNodeModulesDirectory)' == '' ">$(ExtensionLibDirectory)\node_modules</LibNodeModulesDirectory>
         <RepoNodeModulesDirectory Condition= " '$(RepoNodeModulesDirectory)' == '' ">$(RepoDirectory)\node_modules</RepoNodeModulesDirectory>
     </PropertyGroup>
 
@@ -149,12 +154,12 @@
         DependsOnTargets="Clean;NpmInstall-RepoDirectory;CompileTsc"
         Condition=" '$(SkipCompile)' != 'true' ">
         <PropertyGroup>
-            <RepoPackageJsonFilePath>$(RepoDirectory)\package.json</RepoPackageJsonFilePath>
+            <PackageJsonFilePath>$(ExtensionSrcDirectory)\package.json</PackageJsonFilePath>
             <SrcNpmrcFilePath>$(SrcDirectory)\.npmrc</SrcNpmrcFilePath>
         </PropertyGroup>
 
-        <Copy SourceFiles="$(RepoPackageJsonFilePath)" DestinationFiles="$(LibDirectory)\package.json" />
-        <Copy SourceFiles="$(SrcNpmrcFilePath)" DestinationFiles="$(LibDirectory)\.npmrc" />
+        <Copy SourceFiles="$(PackageJsonFilePath)" DestinationFiles="$(ExtensionLibDirectory)\package.json" />
+        <Copy SourceFiles="$(SrcNpmrcFilePath)" DestinationFiles="$(ExtensionLibDirectory)\.npmrc" />
     </Target>
 
     <Target Name="CompileTests" DependsOnTargets="CleanTests;NpmInstall-RepoDirectory">

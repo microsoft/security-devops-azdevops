@@ -1,4 +1,4 @@
-import { stagingDirectory } from '../../testCommon';
+import { stagingDirectory } from '../../../testCommon';
 import * as path from 'path';
 import * as assert from 'assert';
 import { Writable } from 'node:stream';
