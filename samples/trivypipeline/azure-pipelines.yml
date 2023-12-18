@@ -1,0 +1,26 @@
+trigger:
+- 'main'
+  
+jobs:
+- job: build_image
+  pool:
+    vmImage: ubuntu-latest
+
+  steps:
+  - task: Docker@2
+    inputs:
+       ## Enter image name
+      repository: '<imageName>'
+      command: 'build'
+        ## Point towards Dockerfile location in repo
+      Dockerfile: '**/Dockerfile'
+      tags: 'latest'
+  
+  - task: MicrosoftSecurityDevOps@1
+    displayName: 'Microsoft Security DevOps' 
+    inputs: 
+      tools: 'trivy'
+    env:
+      trivy_action: 'image'
+      ## Enter image name
+      trivy_target: '<imageName>'
