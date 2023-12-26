@@ -1,10 +1,12 @@
 ﻿{
     "mapping":  {
-                    "MicrosoftSecurityDevOps":  "505fbc36-f364-4b95-b1c4-7a3fd78a6559"
+                    "MicrosoftSecurityDevOps":  "505fbc36-f364-4b95-b1c4-7a3fd78a6559",
+                    "microsoft-security-devops-azdevops":  "94c33865-4969-4b65-bc8a-5b21fb87bee4",
+                    "microsoft-security-devops-azdevops-decorator":  "cb4b3c9f-c50e-4ea6-8869-afb8300989d0"
                 },
-    "version":  "1.10.0.0",
+    "version":  "1.11.0.0",
     "extensionId":  "microsoft-security-devops-azdevops-debug",
-    "count":  4,
+    "count":  0,
     "publisher":  "ms-secdevops-test",
     "publisherName":  "debug"
 }

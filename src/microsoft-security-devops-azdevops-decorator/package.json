@@ -1,0 +1,17 @@
+{
+    "name": "microsoft-security-devops-azdevops-decorator",
+    "version": "0.1.0",
+    "description": "Microsoft Security DevOps for Azure DevOps Decorator.",
+    "author": "Microsoft Corporation",
+    "license": "MIT",
+    "repository": "https://github.com/microsoft/microsoft-security-devops-azdevops",
+    "scripts": {
+        "build": "dotnet build ./../../build.proj /p:ExtensionId=microsoft-security-devops-azdevops-decorator",
+        "compile": "dotnet build ./../../build.proj /t:Compile /p:ExtensionId=microsoft-security-devops-azdevops-decorator"
+    },
+    "dependencies": { },
+    "devDependencies": {
+        "tfx-cli": "^0.15.0",
+        "typescript": "^5.1.3"
+    }
+}

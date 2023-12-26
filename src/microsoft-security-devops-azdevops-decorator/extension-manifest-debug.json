@@ -1,11 +1,11 @@
-{
+﻿{
   "manifestVersion": 1,
-  "id": "microsoft-security-devops-azdevops",
-  "name": "Microsoft Security DevOps",
-  "version": "1.11.0",
+  "id": "microsoft-security-devops-azdevops-decorator-debug",
+  "name": "Microsoft Security DevOps Decorator",
+  "version": "0.1.0",
   "publisher": "ms-securitydevops",
-  "description": "Build tasks for performing security analysis.",
-  "public": true,
+  "description": "Inject the MicrosoftSecurityDevOps build task into CI/CD pipelines.",
+  "public": false,
   "galleryFlags": [
     "Preview"
   ],
@@ -22,10 +22,13 @@
     "Azure Pipelines"
   ],
   "tags": [
+    "MSDO",
     "Security",
     "Analysis",
     "Microsoft Defender",
+    "Microsoft Defender for DevOps",
     "Microsoft Defender for Cloud",
+    "Defender for DevOps",
     "Static Analysis",
     "AntiMalware",
     "Bandit",
@@ -68,18 +71,20 @@
   },
   "files": [
     {
-      "path": "MicrosoftSecurityDevOps"
+      "path": "msdo-decorator.yml",
+      "addressable": true,
+      "contentType": "text/plain"
     }
   ],
   "contributions": [
     {
-      "id": "build-task-microsoft-security-devops",
-      "type": "ms.vss-distributed-task.task",
+      "id": "msdo-decorator",
+      "type": "ms.azure-pipelines.pipeline-decorator",
       "targets": [
-        "ms.vss-distributed-task.tasks"
+        "ms.azure-pipelines-agent-job.post-job-tasks"
       ],
       "properties": {
-        "name": "MicrosoftSecurityDevOps"
+        "template": "msdo-decorator.yml"
       }
     }
   ]

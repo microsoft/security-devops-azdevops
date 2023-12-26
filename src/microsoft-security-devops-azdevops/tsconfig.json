@@ -5,7 +5,7 @@
     "lib": [
       "es6"
     ],
-    "outDir": "../lib",
+    "outDir": "../../lib",
     "rootDir": "./",
     "strict": false,
     "esModuleInterop": true,
@@ -16,6 +16,7 @@
     "**/*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "test"
   ]
 }

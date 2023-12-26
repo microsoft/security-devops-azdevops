@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+    <PropertyGroup Label="ExtensionDetails">
+        <!-- Constants -->
+        <MsdoExtensionId>microsoft-security-devops-azdevops</MsdoExtensionId>
+        <MsdoDecoratorExtensionId>microsoft-security-devops-azdevops-decorator</MsdoDecoratorExtensionId>
+
+        <!-- Set the extension id -->
+        <ExtensionId Condition=" '$(ExtensionName)' == '' ">$(MsdoExtensionId)</ExtensionId>
+    </PropertyGroup>
+
     <PropertyGroup Label="Directories">
         <!-- Top Level Directories -->
         <RepoDirectory Condition=" '$(RepoDirectory)' == '' ">$(MSBuildThisFileDirectory.TrimEnd('\\'))</RepoDirectory>
         <BinDirectory Condition=" '$(BinDirectory)' == '' ">$(RepoDirectory)\bin</BinDirectory>
         <LibDirectory Condition=" '$(LibDirectory)' == '' ">$(RepoDirectory)\lib</LibDirectory>
         <ScriptsDirectory Condition=" '$(ScriptsDirectory)' == '' ">$(RepoDirectory)\scripts</ScriptsDirectory>
+        <PublishersDirectory Condition=" '$(PublishersDirectory)' == '' ">$(ScriptsDirectory)\.publishers</PublishersDirectory>
         <SrcDirectory Condition=" '$(SrcDirectory)' == '' ">$(RepoDirectory)\src</SrcDirectory>
         <TestDirectory Condition=" '$(TestDirectory)' == '' ">$(RepoDirectory)\test</TestDirectory>
         <TestStagingDirectory Condition=" '$(TestStagingDirectory)' == '' ">$(TestDirectory)\lib</TestStagingDirectory>
@@ -17,6 +27,7 @@
         <Configuration Condition=" '$(Configuration)' == '' ">debug</Configuration>
 
         <!-- Options -->
+        <!-- This will match a directory name in the src directory -->
         <Official Condition=" '$(Official)' == '' ">false</Official>
         <RunTests Condition=" '$(RunTests)' == '' ">false</RunTests>
         
@@ -36,11 +47,28 @@
         <SkipCompile Condition=" '$(SkipCompile)' == '' ">false</SkipCompile>
     </PropertyGroup>
 
+    <PropertyGroup
+        Label="MsdoDecoratorConfiguration"
+        Condition=" '$(ExtensionId)' == '$(MsdoDecoratorExtensionId)' ">
+        <!-- Decorator does not have tests to run -->
+        <RunTests>false</RunTests>
+        <!-- Decorator does not contribute TypeScript -->
+        <SkipCompileTsc>true</SkipCompileTsc>
+        <!-- Decorator does not have a dependency to sideload -->
+        <Sideload>false</Sideload>
+    </PropertyGroup>
+
+    <PropertyGroup Label="ExtensionPaths">
+        <ExtensionBinDirectory Condition=" '$(ExtensionBinDirectory)' == '' ">$(BinDirectory)\$(ExtensionId)</ExtensionBinDirectory>
+        <ExtensionLibDirectory Condition=" '$(ExtensionLibDirectory)' == '' ">$(LibDirectory)\$(ExtensionId)</ExtensionLibDirectory>
+        <ExtensionSrcDirectory Condition=" '$(ExtensionSrcDirectory)' == '' ">$(SrcDirectory)\$(ExtensionId)</ExtensionSrcDirectory>
+    </PropertyGroup>
+
     <PropertyGroup Label="BuildPaths">
-        <OutputDirectory Condition=" '$(OutputDirectory)' == '' ">$(BinDirectory)\$(Configuration)</OutputDirectory>
-        <StagingDirectory Condition=" '$(StagingDirectory)' == '' ">$(LibDirectory)\$(Configuration)</StagingDirectory>
-        <LibNodeModulesDirectory Condition= " '$(LibNodeModulesDirectory)' == '' ">$(LibDirectory)\node_modules</LibNodeModulesDirectory>
-        <RepoNodeModulesDirectory Condition= " '$(RepoNodeModulesDirectory)' == '' ">$(RepoDirectory)\node_modules</RepoNodeModulesDirectory>
+        <OutputDirectory Condition=" '$(OutputDirectory)' == '' ">$(ExtensionBinDirectory)\$(Configuration)</OutputDirectory>
+        <StagingDirectory Condition=" '$(StagingDirectory)' == '' ">$(ExtensionLibDirectory)\$(Configuration)</StagingDirectory>
+        <SrcNodeModulesDirectory Condition= " '$(SrcNodeModulesDirectory)' == '' ">$(ExtensionSrcDirectory)\node_modules</SrcNodeModulesDirectory>
+        <LibNodeModulesDirectory Condition= " '$(LibNodeModulesDirectory)' == '' ">$(ExtensionLibDirectory)\node_modules</LibNodeModulesDirectory>
     </PropertyGroup>
 
     <PropertyGroup Label="Scripts">
@@ -61,10 +89,10 @@
 
     <PropertyGroup>
         <PublisherName Condition=" '$(Official)' == 'true' AND '$(PublisherName)' == '' ">debug</PublisherName>
-        <ExtensionManifestFilePath>$(SrcDirectory)\$(ExtensionManifestFileName)</ExtensionManifestFilePath>
-        <ExtensionIconFilePath>$(SrcDirectory)\icon.png</ExtensionIconFilePath>
-        <ExtensionReadmeFilePath>$(SrcDirectory)\extension-readme.md</ExtensionReadmeFilePath>
-        <ExtensionEulaFilePath>$(SrcDirectory)\extension-eula.md</ExtensionEulaFilePath>
+        <ExtensionManifestFilePath>$(ExtensionSrcDirectory)\$(ExtensionManifestFileName)</ExtensionManifestFilePath>
+        <ExtensionIconFilePath>$(ExtensionSrcDirectory)\icon.png</ExtensionIconFilePath>
+        <ExtensionReadmeFilePath>$(ExtensionSrcDirectory)\extension-readme.md</ExtensionReadmeFilePath>
+        <ExtensionEulaFilePath>$(ExtensionSrcDirectory)\extension-eula.md</ExtensionEulaFilePath>
         <CopyEula>true</CopyEula>
         <StagedExtensionManifestFilePath>$(StagingDirectory)\extension-manifest.json</StagedExtensionManifestFilePath>
         <OutputExtensionFileName>microsoft-security-devops-azdevops</OutputExtensionFileName>
@@ -72,7 +100,7 @@
         <OutputExtensionFilePath Condition=" '$(Configuration)' == 'debug'">$(OutputExtensionFilePath)-debug</OutputExtensionFilePath>
     </PropertyGroup>
 
-    <ItemGroup Label="BuildTasks">
+    <ItemGroup Label="BuildTasks" >
         <MicrosoftSecurityDevOpsV1 Include="MicrosoftSecurityDevOps">
             <MajorVersion>v1</MajorVersion>
             <Platform>Node</Platform>
@@ -112,35 +140,35 @@
     </Target>
 
     <Target
-        Name="NpmInstall-RepoDirectory"
+        Name="NpmInstall-ExtensionSrcDirectory"
         Inputs="$(RepoDirectory)"
-        Outputs="$(RepoNodeModulesDirectory)"
-        Condition=" '$(NpmInstall)' == 'true' AND ('$(ForceNpmInstall)' == 'true' OR EXISTS('$(RepoNodeModulesDirectory)') != 'true')">
+        Outputs="$(SrcNodeModulesDirectory)"
+        Condition=" '$(NpmInstall)' == 'true' AND ('$(ForceNpmInstall)' == 'true' OR EXISTS('$(SrcNodeModulesDirectory)') != 'true')">
         <Message Text="Intstalling npm packages in repo directory: $(RepoDirectory)..." />
-        <Exec Command="npm install" WorkingDirectory="$(RepoDirectory)" />
+        <Exec Command="npm install" WorkingDirectory="$(ExtensionSrcDirectory)" />
     </Target>
 
     <Target
         Name="CompileTsc"
         Condition=" '$(SkipCompileTsc)' != 'true' ">
         <Message Text="Compiling Microsoft Security DevOps for Azure DevOps Extension" />
-        <Exec Command="npx tsc --outDir &quot;$(StagingDirectory)&quot;" WorkingDirectory="$(SrcDirectory)" />
+        <Exec Command="npx tsc --outDir &quot;$(StagingDirectory)&quot;" WorkingDirectory="$(ExtensionSrcDirectory)" />
     </Target>
 
     <Target
         Name="Compile"
-        DependsOnTargets="Clean;NpmInstall-RepoDirectory;CompileTsc"
+        DependsOnTargets="Clean;NpmInstall-ExtensionSrcDirectory;CompileTsc"
         Condition=" '$(SkipCompile)' != 'true' ">
         <PropertyGroup>
-            <RepoPackageJsonFilePath>$(RepoDirectory)\package.json</RepoPackageJsonFilePath>
+            <PackageJsonFilePath>$(ExtensionSrcDirectory)\package.json</PackageJsonFilePath>
             <SrcNpmrcFilePath>$(SrcDirectory)\.npmrc</SrcNpmrcFilePath>
         </PropertyGroup>
 
-        <Copy SourceFiles="$(RepoPackageJsonFilePath)" DestinationFiles="$(LibDirectory)\package.json" />
-        <Copy SourceFiles="$(SrcNpmrcFilePath)" DestinationFiles="$(LibDirectory)\.npmrc" />
+        <Copy SourceFiles="$(PackageJsonFilePath)" DestinationFiles="$(ExtensionLibDirectory)\package.json" />
+        <Copy SourceFiles="$(SrcNpmrcFilePath)" DestinationFiles="$(ExtensionLibDirectory)\.npmrc" />
     </Target>
 
-    <Target Name="CompileTests" DependsOnTargets="CleanTests;NpmInstall-RepoDirectory">
+    <Target Name="CompileTests" DependsOnTargets="CleanTests;NpmInstall-ExtensionSrcDirectory">
         <Message Text="Compiling tests" />
         <Exec Command="npx tsc --outDir &quot;$(TestStagingDirectory)&quot;"  WorkingDirectory="$(TestDirectory)" />
     </Target>
@@ -209,13 +237,13 @@
         AfterTargets="Stage">
 
         <PropertyGroup>
-            <BuildTaskSourceFolder>$(SrcDirectory)\%(BuildTask.Identity)</BuildTaskSourceFolder>
+            <BuildTaskSourceFolder>$(ExtensionSrcDirectory)\%(BuildTask.Identity)</BuildTaskSourceFolder>
             <BuildTaskSourceFolder Condition=" '%(BuildTask.MajorVersion)' != '' ">$(BuildTaskSourceFolder)\%(BuildTask.MajorVersion)</BuildTaskSourceFolder>
 
             <BuildTaskStagingFolder>$(StagingDirectory)\%(BuildTask.Identity)</BuildTaskStagingFolder>
             <BuildTaskStagingFolder Condition=" '%(BuildTask.MajorVersion)' != '' ">$(BuildTaskStagingFolder)\%(BuildTask.MajorVersion)</BuildTaskStagingFolder>
 
-            <IconSourceFilePath Condition=" '%(BuildTask.IconPath)' == '' ">$(SrcDirectory)\icon.png</IconSourceFilePath>
+            <IconSourceFilePath Condition=" '%(BuildTask.IconPath)' == '' ">$(ExtensionSrcDirectory)\icon.png</IconSourceFilePath>
             <IconStagingFilePath>$(BuildTaskStagingFolder)\icon.png</IconStagingFilePath>
 
             <InputMapPath>$(BuildTaskSourceFolder)\inputMap.json</InputMapPath>
