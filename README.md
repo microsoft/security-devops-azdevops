@@ -10,7 +10,7 @@ An extension for Azure DevOps that contributes a build task to run the [Microsof
 * Normalized processing of results into the SARIF format
 * Build breaks and more
 * Captures the [container images pushed in a build run](https://learn.microsoft.com/azure/defender-for-cloud/container-image-mapping)
-  * In Azure DevOps, the [Microsoft Defender for DevOps Container Mapping extension](https://marketplace.visualstudio.com/items?itemName=ms-securitydevops.ms-dfd-code-to-cloud) is automatically shared and installed with organizations that are [connected to Microsoft Defender for Cloud](https://learn.microsoft.com/azure/defender-for-cloud/quickstart-onboard-devops). This extension allows Defender for Cloud to extract metadata from pipelines, such as a container's digest ID and name. This metadata is used to connect DevOps entities with their related cloud resources. Currently there is no way to configure using the Container Mapping functionality manually as it is only accessible via the Decorator extension. 
+  * In Azure DevOps, the [Microsoft Defender for DevOps Container Mapping extension](https://marketplace.visualstudio.com/items?itemName=ms-securitydevops.ms-dfd-code-to-cloud) is automatically shared and installed with organizations that are [connected to Microsoft Defender for Cloud](https://learn.microsoft.com/azure/defender-for-cloud/quickstart-onboard-devops). This extension allows Defender for Cloud to extract metadata from pipelines, such as a container's digest ID and name. This metadata is used to connect DevOps entities with their related cloud resources. To use this functionality, the Container Mapping extension **must** be installed. There is **no way** to configure it manually. 
 
 ## Basic
 
