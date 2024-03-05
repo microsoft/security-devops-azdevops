@@ -9,7 +9,8 @@ An extension for Azure DevOps that contributes a build task to run the [Microsof
 * Execution of a full suite of security tools
 * Normalized processing of results into the SARIF format
 * Build breaks and more
-* Captures the container images pushed in a build run
+* Captures the [container images pushed in a build run](https://learn.microsoft.com/azure/defender-for-cloud/container-image-mapping)
+  * In Azure DevOps, the [Microsoft Defender for DevOps Container Mapping extension](https://marketplace.visualstudio.com/items?itemName=ms-securitydevops.ms-dfd-code-to-cloud) is automatically shared and installed with organizations that are [connected to Microsoft Defender for Cloud](https://learn.microsoft.com/azure/defender-for-cloud/quickstart-onboard-devops). This extension allows Defender for Cloud to extract metadata from pipelines, such as a container's digest ID and name. This metadata is used to connect DevOps entities with their related cloud resources. 
 
 ## Basic
 
@@ -27,9 +28,9 @@ steps:
 | [AntiMalware](https://www.microsoft.com/en-us/windows/comprehensive-security) | code, artifacts | - |
 | [Bandit](https://github.com/PyCQA/bandit) | python | [Apache License 2.0](https://github.com/PyCQA/bandit/blob/master/LICENSE) |
 | [BinSkim](https://github.com/Microsoft/binskim) | binary - Windows, ELF | [MIT License](https://github.com/microsoft/binskim/blob/main/LICENSE) |
-| [Container Mapping](https://learn.microsoft.com/en-us/azure/defender-for-cloud/container-image-mapping) | Container Images | - |
+| [Container Mapping](https://learn.microsoft.com/azure/defender-for-cloud/container-image-mapping) | Container Images | - |
 | [ESlint](https://github.com/eslint/eslint) | JavaScript | [MIT License](https://github.com/eslint/eslint/blob/main/LICENSE) |
-| [IaCFileScanner](https://learn.microsoft.com/en-us/azure/defender-for-cloud/iac-template-mapping) | Terraform, CloudFormation, ARM Template, Bicep	| - |
+| [IaCFileScanner](https://learn.microsoft.com/azure/defender-for-cloud/iac-template-mapping) | Terraform, CloudFormation, ARM Template, Bicep	| - |
 | [Template Analyzer](https://github.com/Azure/template-analyzer) | Infrastructure-as-code (IaC), ARM templates, Bicep files | [MIT License](https://github.com/Azure/template-analyzer/blob/main/LICENSE.txt) |
 | [Terrascan](https://github.com/accurics/terrascan) | Infrastructure-as-Code (IaC), Terraform (HCL2), Kubernetes (JSON/YAML), Helm v3, Kustomize, Dockerfiles, CloudFormation | [Apache License 2.0](https://github.com/accurics/terrascan/blob/master/LICENSE) |
 | [Trivy](https://github.com/aquasecurity/trivy) | Container Images, Infrastructure as Code (Iac) | [Apache License 2.0](https://github.com/aquasecurity/trivy/blob/main/LICENSE) |
