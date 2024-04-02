@@ -66,7 +66,6 @@ export class ContainerMapping implements IMicrosoftSecurityDevOps {
             tl.debug(`No Docker events found`);
             // Log a detail if no events found. We will check for this DetailTimeline record from our backend to reduce calls to ADO REST API to be mindful of Rate Limits.
             tl.logDetail(uuidv4(), "No Docker events found", null, "NoDockerEvents", "NoDockerEvents", 999);
-            // tl.logIssue(tl.IssueType.Warning, "", null, null, null, "NoDockerEvents");
             // Initialize an empty Command Result for Docker images
             images = <ICommandResult>{ code: 0, output: "" };
         }
