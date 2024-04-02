@@ -15,7 +15,8 @@
     "dependencies": {
         "@microsoft/security-devops-azdevops-task-lib": "1.11.0",
         "azure-pipelines-task-lib": "4.3.1",
-        "azure-pipelines-tool-lib": "2.0.4"
+        "azure-pipelines-tool-lib": "2.0.4",
+        "uuid": "^9.0.1"
     },
     "devDependencies": {
         "@types/mocha": "^10.0.1",
@@ -23,6 +24,7 @@
         "@types/node": "^20.3.1",
         "@types/q": "^1.5.5",
         "@types/sinon": "^10.0.15",
+        "@types/uuid": "^9.0.8",
         "mocha": "^10.2.0",
         "sinon": "^15.2.0",
         "tfx-cli": "^0.15.0",
