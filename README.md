@@ -48,6 +48,74 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
+### Running it locally
+
+Make sure to have a supported version of [node and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed in your system.
+After cloning the repo, you can install all dependencies by running this command.
+> npm install 
+
+Note: If you run into `401 - Unauthorized` error, then you will need to login to the `https://npm.pkg.github.com/` by running this command - 
+> npm login --registry=https://npm.pkg.github.com
+
+More info [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry).
+
+All other commands are specified in the [`package.json`](./package.json) file.
+```json
+ "scripts": {
+        "build": "dotnet build ./build.proj",
+        "compile": "dotnet build ./build.proj /t:Compile",
+        "compile-tests": "dotnet build ./build.proj /t:CopyTestHelpers",
+        "compile-and-test": "dotnet build ./build.proj /t:Test /p:RunTests=true",
+        "test": "npx mocha **/*.tests.js"
+    }
+```
+
+You can execute them by using `npm run` commands.
+For example: `npm run build` will execute the `dotnet build ./build.proj` command and generate a vsix file with your changes for testing. 
+
+### Testing the extension
+
+To test the extension after making changes in an ADO pipeline run - 
+
+1) Make the changes and compile the code. If no errors, a vsix file will be generated.
+Eg:
+```ps
+PS C:\Users\larohra\source\repos\security-devops-azdevops> npm run build
+
+> microsoft-security-devops-azdevops@1.11.1 build
+> dotnet build ./build.proj
+
+MSBuild version 17.9.6+a4ecab324 for .NET
+...
+
+  === Completed operation: create extension ===
+   - VSIX: C:\Users\larohra\source\repos\security-devops-azdevops\bin\debug\microsoft-security-devops-azdevops-debug.1.11.0.2.vsix
+   - Extension ID: microsoft-security-devops-azdevops-larohra
+   - Extension Version: 1.11.0.2
+   - Publisher: ms-secdevops-test
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:12.94
+```
+
+2) Publish the vsix in your marketplace account (Create a new publisher account if you dont have one) - https://marketplace.visualstudio.com/manage/
+
+3) Share the debug extension with your organization - https://learn.microsoft.com/en-us/azure/devops/extend/publish/overview?view=azure-devops#share-your-extension
+
+4) Install the extension in your org - https://learn.microsoft.com/en-us/azure/devops/extend/publish/overview?view=azure-devops#install-your-extension
+
+5) Add it to the pipeline run and run the build.
+Sample: 
+```yaml
+  - task: MicrosoftSecurityDevOps@1
+    displayName: 'Test Container Mapping End'
+    timeoutInMinutes: 2
+    condition: always()
+```
+
 ## Trademarks
 
 This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 

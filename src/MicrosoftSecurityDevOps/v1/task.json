@@ -11,7 +11,7 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 1,
-        "Minor": 11,
+        "Minor": 12,
         "Patch": 1
     },
     "preview": true,
@@ -116,9 +116,6 @@
             "target": "index.js"
         },
         "Node10": {
-            "target": "index.js"
-        },
-        "Node": {
             "target": "index.js"
         }
     }
