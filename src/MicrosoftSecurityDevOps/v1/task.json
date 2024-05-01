@@ -12,7 +12,7 @@
     "version": {
         "Major": 1,
         "Minor": 12,
-        "Patch": 0
+        "Patch": 2
     },
     "preview": true,
     "minimumAgentVersion": "1.83.0",
@@ -116,9 +116,6 @@
             "target": "index.js"
         },
         "Node10": {
-            "target": "index.js"
-        },
-        "Node": {
             "target": "index.js"
         }
     }
