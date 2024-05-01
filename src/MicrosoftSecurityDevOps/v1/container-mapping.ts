@@ -2,6 +2,7 @@ import { CommandType, Constants, getEncodedContent, writeToOutStream } from "./m
 import { IMicrosoftSecurityDevOps } from "./msdo-interface";
 import tl = require('azure-pipelines-task-lib/task');
 import { CommandExecutor, ICommandResult } from "./command-executor";
+import {v4 as uuidv4} from 'uuid';
 
 /**
  * Represents the tasks for container mapping that are used to fetch Docker images pushed in a job run.
@@ -63,9 +64,8 @@ export class ContainerMapping implements IMicrosoftSecurityDevOps {
         var images: ICommandResult;
         if (!cleanedEventsOutput) {
             tl.debug(`No Docker events found`);
-            // Log an issue if no events found to parse from the backend from the ADO timeline
-            // We don't log a message to avoid any warning from popping up in the console output of the task
-            tl.logIssue(tl.IssueType.Warning, "", null, null, null, "NoDockerEvents");
+            // Log a detail if no events found. We will check for this DetailTimeline record from our backend to reduce calls to ADO REST API to be mindful of Rate Limits.
+            tl.logDetail(uuidv4(), "No Docker events found", null, "NoDockerEvents", "NoDockerEvents", 999);
             // Initialize an empty Command Result for Docker images
             images = <ICommandResult>{ code: 0, output: "" };
         }
