@@ -1,0 +1,10 @@
+trigger: 
+- main
+
+pool:
+  vmImage: windows-latest
+
+steps:
+- task: MicrosoftSecurityDevOps@1
+  inputs:
+    tools: 'terrascan'
