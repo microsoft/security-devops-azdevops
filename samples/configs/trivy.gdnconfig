@@ -7,7 +7,7 @@
       "fileVersion": "1.0.1",
       "tool": {
         "name": "trivy",
-        "version": "latest"
+        "version": "0.56.2"
       },
       "arguments": {
         "Action": "filesystem",
