@@ -1,0 +1,43 @@
+{
+  "fileVersion": "1.0.1",
+  "jobs": [],
+  "commands": [],
+  "tools": [
+    {
+      "fileVersion": "1.0.1",
+      "tool": {
+        "name": "bandit",
+        "version": "1.6.3.1"
+      },
+      "arguments": {
+        "Target": "$(DefaultBanditTargets)",
+        "Tests": [
+          "B102",
+          "B110",
+          "B112",
+          "B303",
+          "B304",
+          "B312",
+          "B321",
+          "B324",
+          "B413",
+          "B501",
+          "B502",
+          "B503",
+          "B504",
+          "B505"
+        ],
+        "Format": "sarif"
+      },
+      "outputExtension": "sarif",
+      "successfulExitCodes": [
+        0,
+        1
+      ],
+      "errorExitCodes": {
+        "2": "Bandit could not run successfully with the given arguments."
+      },
+      "outputPaths": []
+    }
+  ]
+}
