@@ -1,0 +1,38 @@
+{
+  "fileVersion": "0",
+  "jobs": [],
+  "commands": [],
+  "tools": [
+    {
+      "fileVersion": "0",
+      "tool": {
+        "name": "checkov",
+        "version": "latest"
+      },
+      "arguments": {
+        "TargetDirectory": "$(Checkov.DefaultTargetDirectory)",
+        "Help": false,
+        "Version": false,
+        "OutputType": "sarif",
+        "List": false,
+        "Quiet": false,
+        "Compact": false,
+        "RunAllExternalChecks": false,
+        "Soft": true,
+        "ShowConfig": false,
+        "CreateBaseline": false,
+        "OutputBaselineAsSkipped": false,
+        "NoFailOnCrash": false,
+        "EnableSecretScanAllFiles": false
+      },
+      "outputExtension": "sarif",
+      "successfulExitCodes": [
+        0
+      ],
+      "errorExitCodes": {
+        "1": "An error has occurred running the Checkov tool."
+      },
+      "outputPaths": []
+    }
+  ]
+}
