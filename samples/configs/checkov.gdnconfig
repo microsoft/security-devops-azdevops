@@ -7,7 +7,7 @@
       "fileVersion": "0",
       "tool": {
         "name": "checkov",
-        "version": "latest"
+        "version": "3.2.199"
       },
       "arguments": {
         "TargetDirectory": "$(Checkov.DefaultTargetDirectory)",
