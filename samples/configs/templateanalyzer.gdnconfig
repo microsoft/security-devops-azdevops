@@ -1,0 +1,35 @@
+{
+  "fileVersion": "1.0.0",
+  "jobs": [],
+  "commands": [],
+  "tools": [
+    {
+      "fileVersion": "1.0.0",
+      "tool": {
+        "name": "templateanalyzer",
+        "version": "0.8.0"
+      },
+      "arguments": {
+        "AnalyzeDirectory": "$(WorkingDirectory)",
+        "ReportFormat": "sarif",
+        "OutputFilePath": "$(WorkingDirectory)\\report.sarif"
+      },
+      "outputExtension": "sarif",
+      "successfulExitCodes": [
+        0,
+        20,
+        22
+      ],
+      "errorExitCodes": {
+        "1": "Error: Problem with command",
+        "2": "Error: Invalid file or directory path",
+        "3": "Error: Missing file or directory path",
+        "4": "Error: Problem loading configuration file",
+        "10": "Error: Invalid ARM template specified",
+        "11": "Error: Invalid Bicep template specified",
+        "21": "Error: An error was encountered trying to analyze a template"
+      },
+      "outputPaths": []
+    }
+  ]
+}
