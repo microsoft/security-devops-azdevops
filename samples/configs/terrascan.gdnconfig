@@ -1,0 +1,32 @@
+{
+  "fileVersion": "1.0.0",
+  "jobs": [],
+  "commands": [],
+  "tools": [
+    {
+      "fileVersion": "1.0.0",
+      "tool": {
+        "name": "terrascan",
+        "version": "1.19.9.0"
+      },
+      "arguments": {
+        "Scan": "scan",
+        "OutputType": "github-sarif",
+        "IacDir": "$(WorkingDirectory)",
+        "UseColors": "auto"
+      },
+      "outputExtension": "sarif",
+      "successfulExitCodes": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errorExitCodes": {
+        "1": "scan command errorred out due to invalid inputs"
+      },
+      "outputPaths": []
+    }
+  ]
+}

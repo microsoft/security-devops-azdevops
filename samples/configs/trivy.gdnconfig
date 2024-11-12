@@ -1,0 +1,31 @@
+{
+  "fileVersion": "1.0.1",
+  "jobs": [],
+  "commands": [],
+  "tools": [
+    {
+      "fileVersion": "1.0.1",
+      "tool": {
+        "name": "trivy",
+        "version": "latest"
+      },
+      "arguments": {
+        "Action": "filesystem",
+        "Target": ".",
+        "ExitCode": 100,
+        "TableFormat": "sarif",
+        "DBRepository": "ghcr.io/aquasecurity/trivy-db:2,public.ecr.aws/aquasecurity/trivy-db:2,aquasec/trivy-db:2",
+        "Scanners": "vuln"
+      },
+      "outputExtension": "sarif",
+      "successfulExitCodes": [
+        0,
+        100
+      ],
+      "errorExitCodes": {
+        "1": "The tool did not complete successfully due to bad parameters or a scan error. Contact TrivySecSupport for assistance."
+      },
+      "outputPaths": []
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "fileVersion": "0.1",
+  "jobs": [],
+  "commands": [],
+  "tools": [
+    {
+      "fileVersion": "0.1",
+      "tool": {
+        "name": "eslint",
+        "version": "8.56.0"
+      },
+      "arguments": {
+        "DisableDefaultConfigurationFile": true,
+        "ConfigurationFile": "$(SDLRequiredConfigurationFile)",
+        "Extensions": [
+          ".js",
+          ".ts"
+        ],
+        "ExclusionPatterns": "*.d.ts",
+        "OutputFormat": "$(InstallDirectory)\\node_modules\\@microsoft\\eslint-formatter-sarif\\sarif.js",
+        "Targets": "$(DefaultTargets)"
+      },
+      "outputExtension": "sarif",
+      "successfulExitCodes": [
+        0,
+        1
+      ],
+      "errorExitCodes": {
+        "2": "Linting was unsuccessful due to a configuration problem or an internal error. If you have enabled exit-on-fatal-error one or more of your files could possibly have a parsing error. Check the errors or the produced SARIF files to fix the parsing errors."
+      },
+      "outputPaths": []
+    }
+  ]
+}

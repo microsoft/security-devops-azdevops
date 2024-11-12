@@ -1,0 +1,38 @@
+{
+  "fileVersion": "0",
+  "jobs": [],
+  "commands": [],
+  "tools": [
+    {
+      "fileVersion": "0",
+      "tool": {
+        "name": "binskim",
+        "version": "1.9.5"
+      },
+      "arguments": {
+        "Function": "analyze",
+        "Target": "$(BinSkim.DefaultTargetPattern)",
+        "ConfigPath": "default",
+        "IgnorePdbLoadError": true,
+        "Recurse": false,
+        "Verbose": false,
+        "Hashes": true,
+        "Statistics": true,
+        "Environment": false,
+        "Quiet": false,
+        "Optimize": false,
+        "PrettyPrint": false,
+        "Minify": false,
+        "SarifOutputVersion": "OneZeroZero"
+      },
+      "outputExtension": "sarif",
+      "successfulExitCodes": [
+        0
+      ],
+      "errorExitCodes": {
+        "1": "BinSkim failed. Verify the target(s) to be scanned. BinSkim targets must be a specific filename, or a pattern with a wildcard like *.dll, dir\\*.dll, or dir\\*"
+      },
+      "outputPaths": []
+    }
+  ]
+}
