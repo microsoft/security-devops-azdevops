@@ -11,8 +11,8 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 1,
-        "Minor": 12,
-        "Patch": 2
+        "Minor": 13,
+        "Patch": 0
     },
     "preview": true,
     "minimumAgentVersion": "1.83.0",
@@ -107,6 +107,14 @@
             "required": false,
             "helpMarkDown": "The name of the pipeline artifact to publish the SARIF result file to. Default: CodeAnalysisLogs</br>\"CodeAnalysisLogs\" is required for integration with [Defender for DevOps](https://aka.ms/defender-for-devops).</br>If left as \"CodeAnalysisLogs\", it integrates with the [SARIF Scans Tab](https://marketplace.visualstudio.com/items?itemName=sariftools.scans) viewing experience.",
             "defaultValue": "CodeAnalysisLogs",
+            "groupName": "advanced"
+        },
+        {
+            "name": "alternateDevOpsServer",
+            "label": "Alternate DevOps Server",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "An alternative DevOps server endpoint for advanced scenarios. This should be left empty.",
             "groupName": "advanced"
         }
     ],
