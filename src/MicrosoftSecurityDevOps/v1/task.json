@@ -11,7 +11,7 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 1,
-        "Minor": 13,
+        "Minor": 14,
         "Patch": 0
     },
     "preview": true,
@@ -120,10 +120,13 @@
     ],
     "instanceNameFormat": "Run Microsoft Defender for DevOps",
     "execution": {
-        "Node16": {
+        "Node24": {
             "target": "index.js"
         },
-        "Node10": {
+        "Node22": {
+            "target": "index.js"
+        },
+        "Node20": {
             "target": "index.js"
         }
     }
