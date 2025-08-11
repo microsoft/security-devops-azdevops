@@ -11,11 +11,11 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 1,
-        "Minor": 16,
+        "Minor": 17,
         "Patch": 0
     },
     "preview": true,
-    "minimumAgentVersion": "1.83.0",
+    "minimumAgentVersion": "3.232.1",
     "groups": [
         {
             "name": "advanced",
@@ -120,19 +120,19 @@
     ],
     "instanceNameFormat": "Run Microsoft Defender for DevOps",
     "execution": {
-        "Node24": {
-            "target": "index.js"
-        },
-        "Node22": {
+        "Node18": {
             "target": "index.js"
         },
         "Node20": {
             "target": "index.js"
         },
-        "Node18": {
+        "Node20_1": {
             "target": "index.js"
         },
-        "Node16": {
+        "Node22": {
+            "target": "index.js"
+        },
+        "Node24": {
             "target": "index.js"
         }
     }
