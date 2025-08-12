@@ -11,11 +11,11 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 1,
-        "Minor": 12,
-        "Patch": 1
+        "Minor": 18,
+        "Patch": 0
     },
     "preview": true,
-    "minimumAgentVersion": "1.83.0",
+    "minimumAgentVersion": "3.232.1",
     "groups": [
         {
             "name": "advanced",
@@ -108,14 +108,31 @@
             "helpMarkDown": "The name of the pipeline artifact to publish the SARIF result file to. Default: CodeAnalysisLogs</br>\"CodeAnalysisLogs\" is required for integration with [Defender for DevOps](https://aka.ms/defender-for-devops).</br>If left as \"CodeAnalysisLogs\", it integrates with the [SARIF Scans Tab](https://marketplace.visualstudio.com/items?itemName=sariftools.scans) viewing experience.",
             "defaultValue": "CodeAnalysisLogs",
             "groupName": "advanced"
+        },
+        {
+            "name": "alternateDevOpsServer",
+            "label": "Alternate DevOps Server",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "An alternative DevOps server endpoint for advanced scenarios. This should be left empty.",
+            "groupName": "advanced"
         }
     ],
     "instanceNameFormat": "Run Microsoft Defender for DevOps",
     "execution": {
-        "Node16": {
+        "Node18": {
             "target": "index.js"
         },
-        "Node10": {
+        "Node20": {
+            "target": "index.js"
+        },
+        "Node20_1": {
+            "target": "index.js"
+        },
+        "Node22": {
+            "target": "index.js"
+        },
+        "Node24": {
             "target": "index.js"
         }
     }

@@ -133,7 +133,7 @@
         Condition=" '$(SkipCompile)' != 'true' ">
         <PropertyGroup>
             <RepoPackageJsonFilePath>$(RepoDirectory)\package.json</RepoPackageJsonFilePath>
-            <SrcNpmrcFilePath>$(SrcDirectory)\.npmrc</SrcNpmrcFilePath>
+            <SrcNpmrcFilePath>$(RepoDirectory)\.npmrc</SrcNpmrcFilePath>
         </PropertyGroup>
 
         <Copy SourceFiles="$(RepoPackageJsonFilePath)" DestinationFiles="$(LibDirectory)\package.json" />
