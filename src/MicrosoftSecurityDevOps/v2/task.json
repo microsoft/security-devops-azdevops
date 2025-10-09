@@ -1,0 +1,83 @@
+{
+    "id": "7d8a9b2c-3e4f-5a6b-7c8d-9e0f1a2b3c4d",
+    "name": "MicrosoftDefenderCLI",
+    "friendlyName": "Microsoft Defender CLI",
+    "description": "Run the Microsoft Defender CLI for security analysis with support for filesystem and container image scanning.",
+    "helpMarkDown": "Runs the Microsoft Defender CLI for security analysis. Supports both filesystem scanning and container image scanning with SARIF output format. v26",
+    "category": "Utility",
+    "visibility": [
+        "Build"
+    ],
+    "author": "Microsoft Corporation",
+    "version": {
+        "Major": 2,
+        "Minor": 0,
+        "Patch": 0
+    },
+    "preview": true,
+    "minimumAgentVersion": "3.232.1",
+    "groups": [
+        {
+            "name": "advanced",
+            "displayName": "Advanced",
+            "isExpanded": false
+        }
+    ],
+    "inputs": [
+        {
+            "name": "scanType",
+            "label": "Scan Type",
+            "type": "pickList",
+            "required": true,
+            "helpMarkDown": "Select the type of scan to perform",
+            "default": "filesystem",
+            "options": {
+                "filesystem": "Filesystem Scan",
+                "image": "Container Image Scan"
+            }
+        },
+        {
+            "name": "fileSystemPath",
+            "label": "Filesystem Path",
+            "type": "string",
+            "required": true,
+            "helpMarkDown": "The filesystem path to scan (directory or file path)",
+            "defaultValue": "$(System.DefaultWorkingDirectory)",
+            "visibleRule": "scanType = filesystem"
+        },
+        {
+            "name": "imageName",
+            "label": "Container Image Name",
+            "type": "string",
+            "required": true,
+            "helpMarkDown": "The container image name to scan (e.g., nginx:latest, myregistry.com/myapp:v1.0)",
+            "visibleRule": "scanType = image"
+        },
+        {
+            "name": "additionalArgs",
+            "label": "Additional CLI Arguments",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "Optional additional arguments to pass to the Defender CLI. These will be appended to the command as-is. Example: --scanner mdvm --custom-flag value",
+            "groupName": "advanced"
+        }
+    ],
+    "instanceNameFormat": "Run Microsoft Defender CLI - $(scanType)",
+    "execution": {
+        "Node18": {
+            "target": "index.js"
+        },
+        "Node20": {
+            "target": "index.js"
+        },
+        "Node20_1": {
+            "target": "index.js"
+        },
+        "Node22": {
+            "target": "index.js"
+        },
+        "Node24": {
+            "target": "index.js"
+        }
+    }
+}

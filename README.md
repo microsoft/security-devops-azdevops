@@ -103,6 +103,9 @@ Time Elapsed 00:00:12.94
 
 2) Publish the vsix in your marketplace account (Create a new publisher account if you dont have one) - https://marketplace.visualstudio.com/manage/
 
+**Note:** If you encounter an "extension name mismatch" error when publishing, even after updating the extension name in the manifest files, delete the generated VSIX file from the `bin/debug/` directory before running `npm run build` again.
+D:\DfdRepo\Security-devops-azdevops\scripts\.publishers\amarnatv-publishers.json
+
 3) Share the debug extension with your organization - https://learn.microsoft.com/en-us/azure/devops/extend/publish/overview?view=azure-devops#share-your-extension
 
 4) Install the extension in your org - https://learn.microsoft.com/en-us/azure/devops/extend/publish/overview?view=azure-devops#install-your-extension

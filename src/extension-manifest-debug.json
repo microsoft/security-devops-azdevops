@@ -1,9 +1,9 @@
 {
   "manifestVersion": 1,
-  "id": "microsoft-security-devops-azdevops",
+  "id": "msdotestexternal",
   "name": "Microsoft Security DevOps (Debug)",
-  "version": "1.18.1.0",
-  "publisher": "ms-securitydevops",
+  "version": "1.18.1.14",
+  "publisher": "msdotestexternal",
   "description": "Build tasks for performing security analysis.",
   "public": false,
   "galleryFlags": [
@@ -79,7 +79,17 @@
         "ms.vss-distributed-task.tasks"
       ],
       "properties": {
-        "name": "MicrosoftSecurityDevOps"
+        "name": "MicrosoftSecurityDevOps/v1"
+      }
+    },
+    {
+      "id": "build-task-microsoft-defender-cli",
+      "type": "ms.vss-distributed-task.task",
+      "targets": [
+        "ms.vss-distributed-task.tasks"
+      ],
+      "properties": {
+        "name": "MicrosoftSecurityDevOps/v2"
       }
     }
   ]

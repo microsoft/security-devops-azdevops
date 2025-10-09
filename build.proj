@@ -77,6 +77,10 @@
             <MajorVersion>v1</MajorVersion>
             <Platform>Node</Platform>
         </MicrosoftSecurityDevOpsV1>
+        <MicrosoftSecurityDevOpsV2 Include="MicrosoftSecurityDevOps">
+            <MajorVersion>v2</MajorVersion>
+            <Platform>Node</Platform>
+        </MicrosoftSecurityDevOpsV2>
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'debug'  ">
@@ -86,12 +90,21 @@
     <ItemGroup>
         <!-- contributions -->
         <BuildTask Include="@(MicrosoftSecurityDevOpsV1)" />
+        <BuildTask Include="@(MicrosoftSecurityDevOpsV2)" />
     </ItemGroup>
 
     <Target Name="ValidateConfiguration">
         <Error
             Condition=" '$(Configuration)' != 'debug' AND '$(Configuration)' != 'release' "
             Text="Invalid Configuration given: $(Configuration). Valid values are: debug, release" />
+    </Target>
+
+    <Target Name="EnsureDirectories">
+        <Message Text="Ensuring required directories exist..." />
+        <MakeDir Directories="$(LibDirectory)" Condition="!Exists('$(LibDirectory)')" />
+        <MakeDir Directories="$(StagingDirectory)" Condition="!Exists('$(StagingDirectory)')" />
+        <MakeDir Directories="$(OutputDirectory)" Condition="!Exists('$(OutputDirectory)')" />
+        <MakeDir Directories="$(BinDirectory)" Condition="!Exists('$(BinDirectory)')" />
     </Target>
 
     <Target Name="Clean" DependsOnTargets="CleanTests">
@@ -121,16 +134,8 @@
     </Target>
 
     <Target
-        Name="CompileTsc"
-        Condition=" '$(SkipCompileTsc)' != 'true' ">
-        <Message Text="Compiling Microsoft Security DevOps for Azure DevOps Extension" />
-        <Exec Command="npx tsc --outDir &quot;$(StagingDirectory)&quot;" WorkingDirectory="$(SrcDirectory)" />
-    </Target>
-
-    <Target
-        Name="Compile"
-        DependsOnTargets="Clean;NpmInstall-RepoDirectory;CompileTsc"
-        Condition=" '$(SkipCompile)' != 'true' ">
+        Name="PrepareLibDirectory"
+        DependsOnTargets="Clean;NpmInstall-RepoDirectory;EnsureDirectories">
         <PropertyGroup>
             <RepoPackageJsonFilePath>$(RepoDirectory)\package.json</RepoPackageJsonFilePath>
             <SrcNpmrcFilePath>$(RepoDirectory)\.npmrc</SrcNpmrcFilePath>
@@ -140,6 +145,20 @@
         <Copy SourceFiles="$(SrcNpmrcFilePath)" DestinationFiles="$(LibDirectory)\.npmrc" />
     </Target>
 
+    <Target
+        Name="CompileTsc"
+        DependsOnTargets="Sideload"
+        Condition=" '$(SkipCompileTsc)' != 'true' ">
+        <Message Text="Compiling Microsoft Security DevOps for Azure DevOps Extension" />
+        <Exec Command="npx tsc --outDir &quot;$(StagingDirectory)&quot;" WorkingDirectory="$(SrcDirectory)" />
+    </Target>
+
+    <Target
+        Name="Compile"
+        DependsOnTargets="PrepareLibDirectory;CompileTsc"
+        Condition=" '$(SkipCompile)' != 'true' ">
+    </Target>
+
     <Target Name="CompileTests" DependsOnTargets="CleanTests;NpmInstall-RepoDirectory">
         <Message Text="Compiling tests" />
         <Exec Command="npx tsc --outDir &quot;$(TestStagingDirectory)&quot;"  WorkingDirectory="$(TestDirectory)" />
@@ -147,28 +166,29 @@
 
     <Target
         Name="NpmInstall-LibDirectory"
-        Inputs="$(LibDirectory)"
-        Outputs="$(LibDirectory)\node_modules"
-        Condition=" '$(NpmInstall)' == 'true' AND ('$(ForceNpmInstall)' == 'true' OR EXISTS('$(LibDirectory)\node_modules') != 'true') ">
-        <Message Text="Installing npm packages staging directory: $(StagingDirectory)..." />
-        <Exec Command="npm install --production" WorkingDirectory="$(StagingDirectory)" />
+        DependsOnTargets="PrepareLibDirectory"
+        Condition=" '$(NpmInstall)' == 'true' ">
+        <Message Text="Installing npm packages in lib directory: $(LibDirectory)..." />
+        <Exec Command="npm install --omit=dev" WorkingDirectory="$(LibDirectory)" />
     </Target>
 
     <Target
         Name="Sideload"
+        DependsOnTargets="NpmInstall-LibDirectory"
         Condition=" '$(Sideload)' == 'true' ">
         <PropertyGroup>
-            <TaskLibSrcDirectory>$(MSBuildThisFileDirectory)..\security-devops-azdevops-task-lib</TaskLibSrcDirectory>
-            <TaskLibDistDirectory>$(TaskLibSrcDirectory)\dist</TaskLibDistDirectory>
+            <TaskLibRepoDirectory>$(MSBuildThisFileDirectory)..\security-devops-azdevops-task-lib</TaskLibRepoDirectory>
+            <TaskLibSrcDirectory>$(TaskLibRepoDirectory)\src</TaskLibSrcDirectory>
+            <TaskLibDistDirectory>$(TaskLibRepoDirectory)\dist</TaskLibDistDirectory>
             <TaskLibNodeModulesDirectory>$(LibNodeModulesDirectory)\@microsoft\security-devops-azdevops-task-lib</TaskLibNodeModulesDirectory>
         </PropertyGroup>
         <Message Text="Sideload mode enabled. Linking @microsoft/security-devops-azdevops-task-lib" />
         <Error
-            Condition=" !Exists('$(TaskLibSrcDirectory)') "
-            Text="Could not find task lib repo directory: $(TaskLibSrcDirectory). Please clone the repo to a parallel directory to this extension repo. Repo homepage: https://github.com/microsoft/security-devops-azdevops-task-lib" />
+            Condition=" !Exists('$(TaskLibRepoDirectory)') "
+            Text="Could not find task lib repo directory: $(TaskLibRepoDirectory). Please clone the repo to a parallel directory to this extension repo. Repo homepage: https://github.com/microsoft/security-devops-azdevops-task-lib" />
 
         <Message Condition=" '$(SideloadBuild)' == 'true' " Text="Building sideload project: npm run build" />
-        <Exec Condition=" '$(SideloadBuild)' == 'true' " Command="npm run build" WorkingDirectory="$(TaskLibSrcDirectory)" />
+        <Exec Condition=" '$(SideloadBuild)' == 'true' " Command="npm run build" WorkingDirectory="$(TaskLibRepoDirectory)" />
 
         <Message Text="Remove existing task lib directory: $(TaskLibNodeModulesDirectory)" />
         <RemoveDir Directories="$(TaskLibNodeModulesDirectory)" Condition=" Exists('$(TaskLibNodeModulesDirectory)') " />
@@ -177,13 +197,13 @@
             <TaskLibDistFiles Include="$(TaskLibDistDirectory)\**\*" />
         </ItemGroup>
 
-        <Message Text="Copying sideload build..." />
+        <Message Text="Copying sideload compiled files from dist..." />
         <Copy
             SourceFiles="@(TaskLibDistFiles)"
             DestinationFiles="@(TaskLibDistFiles->'$(TaskLibNodeModulesDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 
-    <Target Name="Stage" DependsOnTargets="NpmInstall-LibDirectory;Sideload">
+    <Target Name="Stage" DependsOnTargets="EnsureDirectories;NpmInstall-LibDirectory;Sideload">
         <PropertyGroup>
             <StagingNodeModulesBinDirectory>$(LibNodeModulesDirectory)\.bin</StagingNodeModulesBinDirectory>
             <StagingPackageLockJsonFilePath>$(LibNodeModulesDirectory)\.package-lock.json</StagingPackageLockJsonFilePath>
@@ -212,6 +232,9 @@
             <BuildTaskSourceFolder>$(SrcDirectory)\%(BuildTask.Identity)</BuildTaskSourceFolder>
             <BuildTaskSourceFolder Condition=" '%(BuildTask.MajorVersion)' != '' ">$(BuildTaskSourceFolder)\%(BuildTask.MajorVersion)</BuildTaskSourceFolder>
 
+            <BuildTaskCompiledFolder>$(StagingDirectory)\Security-devops-azdevops\src\%(BuildTask.Identity)</BuildTaskCompiledFolder>
+            <BuildTaskCompiledFolder Condition=" '%(BuildTask.MajorVersion)' != '' ">$(BuildTaskCompiledFolder)\%(BuildTask.MajorVersion)</BuildTaskCompiledFolder>
+
             <BuildTaskStagingFolder>$(StagingDirectory)\%(BuildTask.Identity)</BuildTaskStagingFolder>
             <BuildTaskStagingFolder Condition=" '%(BuildTask.MajorVersion)' != '' ">$(BuildTaskStagingFolder)\%(BuildTask.MajorVersion)</BuildTaskStagingFolder>
 
@@ -228,7 +251,7 @@
                 Include="$(LibNodeModulesDirectory)\**\*" />
             <BuildTaskFiles
                 Condition=" '%(BuildTask.Platform)' == 'Node' "
-                Include="$(BuildTaskSourceFolder)\*.js" />
+                Include="$(BuildTaskCompiledFolder)\*.js" />
             <BuildTaskFiles
                 Condition=" '%(BuildTask.Platform)' == 'Node' "
                 Include="$(BuildTaskSourceFolder)\task.json" />
@@ -277,15 +300,16 @@
 
         <ItemGroup>
             <TestHelperFiles Include="$(TestDirectory)\**\*.json" />
+            <StagedSourceFiles Include="$(StagingDirectory)\**\*" />
         </ItemGroup>
 
-        <Copy SourceFiles="$(BuildTaskSourceFolder)\task.json" DestinationFiles="$(TestStagingDirectory)\task.json" />
+        <Copy SourceFiles="@(StagedSourceFiles)" DestinationFiles="@(StagedSourceFiles->'$(TestStagingDirectory)\%(RecursiveDir)%(Filename)%(Extension)')" />
         <Copy SourceFiles="@(TestHelperFiles)" DestinationFolder="$(TestStagingDirectory)\%(RecursiveDir)" SkipUnchangedFiles="true" />
     </Target>
 
     <Target Name="Test" Condition=" '$(RunTests)' == 'true' " DependsOnTargets="CopyTestHelpers">
-        <Message Text="Compiling Microsoft Security DevOps for Azure DevOps Extension" />
-        <Exec Command="npx mocha **/*.tests.js" WorkingDirectory="$(TestStagingDirectory)" />
+        <Message Text="Running Microsoft Security DevOps for Azure DevOps Extension Tests" />
+        <Exec Command="npx mocha **/*.tests.js" WorkingDirectory="$(TestStagingDirectory)" IgnoreStandardErrorWarningFormat="true" />
     </Target>
 
     <Target Name="Ext-Prep" Condition=" '$(Configuration)' == 'debug' ">

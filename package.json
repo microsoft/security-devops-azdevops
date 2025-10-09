@@ -7,15 +7,17 @@
     "repository": "https://github.com/microsoft/microsoft-security-devops-azdevops",
     "scripts": {
         "build": "dotnet build ./build.proj",
+        "build-sideload": "dotnet build ./build.proj /p:Sideload=true",
         "compile": "dotnet build ./build.proj /t:Compile",
         "compile-tests": "dotnet build ./build.proj /t:CopyTestHelpers",
         "compile-and-test": "dotnet build ./build.proj /t:Test /p:RunTests=true",
         "test": "npx mocha **/*.tests.js"
     },
     "dependencies": {
-        "@microsoft/security-devops-azdevops-task-lib": "1.13.0",
+        "@microsoft/security-devops-azdevops-task-lib": "1.13.1",
         "azure-pipelines-task-lib": "^4.13.0",
         "azure-pipelines-tool-lib": "^2.0.7",
+        "mockery": "2.1.0",
         "uuid": "^9.0.1"
     },
     "devDependencies": {
@@ -28,6 +30,6 @@
         "mocha": "^10.2.0",
         "sinon": "^15.2.0",
         "tfx-cli": "^0.15.0",
-        "typescript": "5.1.6"
+        "typescript": "^5.9.3"
     }
 }

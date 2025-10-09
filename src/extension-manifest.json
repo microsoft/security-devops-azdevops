@@ -24,17 +24,24 @@
   "tags": [
     "Security",
     "Analysis",
+    "Devops Security",
     "Microsoft Defender",
     "Microsoft Defender for Cloud",
+    "Microsoft Security",
+    "MDC",
+    "Microsoft Defender CLI",
     "Static Analysis",
     "AntiMalware",
     "Bandit",
     "BinSkim",
+    "Container Scanning",
     "Defender",
     "ESLint",
+    "Filesystem Scanning",
     "Iac",
     "Gosec",
     "Flawfinder",
+    "Image Scanning",
     "Roslyn Analyzers",
     "Template Analyzer",
     "Terrascan",
@@ -79,7 +86,17 @@
         "ms.vss-distributed-task.tasks"
       ],
       "properties": {
-        "name": "MicrosoftSecurityDevOps"
+        "name": "MicrosoftSecurityDevOps/v1"
+      }
+    },
+    {
+      "id": "build-task-microsoft-defender-cli",
+      "type": "ms.vss-distributed-task.task",
+      "targets": [
+        "ms.vss-distributed-task.tasks"
+      ],
+      "properties": {
+        "name": "MicrosoftSecurityDevOps/v2"
       }
     }
   ]

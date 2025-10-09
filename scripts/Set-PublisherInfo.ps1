@@ -114,7 +114,7 @@ else # Create a new publisher
     # different than the username.
 
     $publisherInfo = @{
-        publisher = 'ms-secdevops-test'
+        publisher = 'msdotestexternal'
         publisherName = $PublisherName
         extensionId = "$($manifest.id)-$($PublisherName)"
         mapping = @{ }
@@ -128,20 +128,55 @@ else # Create a new publisher
 
 Write-Host 'Ensuring all tasks have entries in publishers.json'
 
-$srcTaskNamesSearchPatern = Join-Path $PSScriptRoot '../' 
-$srcTaskNamesSearchPatern = Join-Path $srcTaskNamesSearchPatern 'src'
-$srcTaskNamesSearchPatern = Join-Path $srcTaskNamesSearchPatern '*'
-$taskNames = Get-ChildItem -Path $srcTaskNamesSearchPatern -Directory | Select -ExpandProperty Name
+$srcTaskNamesSearchPattern = Join-Path $PSScriptRoot '../' 
+$srcTaskNamesSearchPattern = Join-Path $srcTaskNamesSearchPattern 'src'
+$srcTaskNamesSearchPattern = Join-Path $srcTaskNamesSearchPattern '*'
+$taskDirs = Get-ChildItem -Path $srcTaskNamesSearchPattern -Directory
 $newTaskIds = $false
 
-foreach ($taskName in $taskNames)
+# Discover all tasks including versioned subdirectories
+$taskMappings = @()
+foreach ($taskDir in $taskDirs)
 {
-    if ($taskName -ne 'node_modules' -and -not $publisherInfo.mapping.$taskName)
+    $taskName = $taskDir.Name
+    
+    if ($taskName -eq 'node_modules')
     {
-        Write-Host "Missing task '$taskName' for publisher '$PublisherName'"
-        $publisherInfo.mapping.$taskName = [Guid]::NewGuid().Guid
-        Write-Host "  New task id = $($publisherInfo.mapping.$taskName)"
-        $newTaskIds = $true;
+        continue
+    }
+    
+    # Check if this directory contains versioned subdirectories (v1, v2, etc.)
+    $versionedDirs = Get-ChildItem -Path $taskDir.FullName -Directory | Where-Object { $_.Name -match '^v\d+$' }
+    
+    if ($versionedDirs)
+    {
+        # Task has versioned subdirectories - create mapping for each version
+        foreach ($versionDir in $versionedDirs)
+        {
+            $versionedTaskKey = "$taskName/$($versionDir.Name)"
+            $taskMappings += $versionedTaskKey
+            
+            if (-not $publisherInfo.mapping.$versionedTaskKey)
+            {
+                Write-Host "Missing task '$versionedTaskKey' for publisher '$PublisherName'"
+                $publisherInfo.mapping.$versionedTaskKey = [Guid]::NewGuid().Guid
+                Write-Host "  New task id = $($publisherInfo.mapping.$versionedTaskKey)"
+                $newTaskIds = $true
+            }
+        }
+    }
+    else
+    {
+        # Task doesn't have versioned subdirectories - use the task name directly
+        $taskMappings += $taskName
+        
+        if (-not $publisherInfo.mapping.$taskName)
+        {
+            Write-Host "Missing task '$taskName' for publisher '$PublisherName'"
+            $publisherInfo.mapping.$taskName = [Guid]::NewGuid().Guid
+            Write-Host "  New task id = $($publisherInfo.mapping.$taskName)"
+            $newTaskIds = $true
+        }
     }
 }
 
@@ -172,13 +207,24 @@ foreach ($taskName in $taskNames)
 
         $contents = Get-Content -Path $taskFile
 
-        if ($publisherInfo.mapping.$taskName)
+        # Determine the correct mapping key - check for versioned path first
+        $taskFileDir = Split-Path -Path $taskFile -Parent
+        $versionDir = Split-Path -Path $taskFileDir -Leaf
+        
+        $mappingKey = $taskName
+        if ($versionDir -match '^v\d+$')
         {
-            $replacement = '"id": "' + $publisherInfo.mapping.$taskName + '"'
+            # This is a versioned task - use the versioned key
+            $mappingKey = "$taskName/$versionDir"
+        }
+        
+        if ($publisherInfo.mapping.$mappingKey)
+        {
+            $replacement = '"id": "' + $publisherInfo.mapping.$mappingKey + '"'
         }
         else
         {
-            Write-Warning "Extra build task '$($taskName)' found in staging folder, cleanup your build results."
+            Write-Warning "Extra build task '$mappingKey' found in staging folder, cleanup your build results."
             $replacement = ($contents | Select-String $idPattern).Line.Trim()
         }
 
