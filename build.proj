@@ -232,7 +232,7 @@
             <BuildTaskSourceFolder>$(SrcDirectory)\%(BuildTask.Identity)</BuildTaskSourceFolder>
             <BuildTaskSourceFolder Condition=" '%(BuildTask.MajorVersion)' != '' ">$(BuildTaskSourceFolder)\%(BuildTask.MajorVersion)</BuildTaskSourceFolder>
 
-            <BuildTaskCompiledFolder>$(StagingDirectory)\Security-devops-azdevops\src\%(BuildTask.Identity)</BuildTaskCompiledFolder>
+            <BuildTaskCompiledFolder>$(StagingDirectory)\%(BuildTask.Identity)</BuildTaskCompiledFolder>
             <BuildTaskCompiledFolder Condition=" '%(BuildTask.MajorVersion)' != '' ">$(BuildTaskCompiledFolder)\%(BuildTask.MajorVersion)</BuildTaskCompiledFolder>
 
             <BuildTaskStagingFolder>$(StagingDirectory)\%(BuildTask.Identity)</BuildTaskStagingFolder>
