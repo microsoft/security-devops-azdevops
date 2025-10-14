@@ -1,7 +1,7 @@
 import tl = require('azure-pipelines-task-lib/task');
 import * as fs from 'fs';
 import * as path from 'path';
-import { ScanType, Inputs, validateScanType, validateFileSystemPath, validateImageName, parseAdditionalArgs } from './defender-helpers';
+import { ScanType, Inputs, CommandType, validateScanType, validateFileSystemPath, validateImageName, parseAdditionalArgs } from './defender-helpers';
 import { IMicrosoftDefenderCLI } from './defender-interface';
 import { scanDirectory, scanImage } from '@microsoft/security-devops-azdevops-task-lib/defender-client';
 
@@ -9,9 +9,11 @@ import { scanDirectory, scanImage } from '@microsoft/security-devops-azdevops-ta
 * Class for Microsoft Defender CLI functionality
 */
 export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
+    private readonly commandType: CommandType;
     readonly succeedOnError: boolean;
 
-    constructor() {
+    constructor(commandType: CommandType) {
+        this.commandType = commandType;
         this.succeedOnError = false;
     }
 
@@ -46,7 +48,19 @@ export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
         
         // Get and parse additional arguments
         const additionalArgsInput = tl.getInput(Inputs.AdditionalArgs, false);
-        const additionalArgs = parseAdditionalArgs(additionalArgsInput);
+        let additionalArgs = parseAdditionalArgs(additionalArgsInput);
+        
+        // Handle break on critical vulnerability checkbox
+        const breakOnCritical = tl.getBoolInput(Inputs.Break, false);
+        
+        // Remove --defender-break from additional args if it was manually added
+        additionalArgs = additionalArgs.filter(arg => arg !== '--defender-break');
+        
+        // Add --defender-break if the checkbox is checked
+        if (breakOnCritical) {
+            additionalArgs.push('--defender-break');
+            tl.debug('Break on critical vulnerability enabled: adding --defender-break flag');
+        }
         
         // Determine successful exit codes
         let successfulExitCodes: number[] = [0];
@@ -63,6 +77,10 @@ export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
         if (additionalArgs.length > 0) {
             tl.debug(`Additional Arguments: ${additionalArgs.join(' ')}`);
         }
+        
+        // Set environment variable to indicate execution via extension
+        process.env.Defender_Extension = 'true';
+        tl.debug('Environment variable set: Defender_Extension=true');
         
         try {
             // Execute the appropriate scan function from task lib

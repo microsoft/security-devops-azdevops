@@ -9,9 +9,11 @@ import { Writable } from "stream";
  * Enum for the possible inputs for the task (specified in task.json)
  */
 export enum Inputs {
+    CommandType = 'command',
     ScanType = 'scanType',
     FileSystemPath = 'fileSystemPath',
     ImageName = 'imageName',
+    Break = 'break',
     AdditionalArgs = 'additionalArgs'
 }
 
@@ -24,8 +26,7 @@ export enum ScanType {
 }
 
 /*
-* Enum for CommandType - kept for ContainerMapping backward compatibility
-* Note: This is no longer used in the main task execution flow
+* Enum for the possible values for the Inputs.CommandType (specified in task.json)
 */
 export enum CommandType {
     PreJob = 'pre-job',

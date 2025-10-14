@@ -2,8 +2,8 @@
     "id": "7d8a9b2c-3e4f-5a6b-7c8d-9e0f1a2b3c4d",
     "name": "MicrosoftDefenderCLI",
     "friendlyName": "Microsoft Defender CLI",
-    "description": "Run the Microsoft Defender CLI for security analysis with support for filesystem and container image scanning.",
-    "helpMarkDown": "Runs the Microsoft Defender CLI for security analysis. Supports both filesystem scanning and container image scanning with SARIF output format. v26",
+    "description": "Run the Microsoft Defender CLI for security analysis with support for container image scanning.",
+    "helpMarkDown": "Runs the Microsoft Defender CLI for security analysis. Supports container image scanning with SARIF output format.",
     "category": "Utility",
     "visibility": [
         "Build"
@@ -25,25 +25,30 @@
     ],
     "inputs": [
         {
-            "name": "scanType",
-            "label": "Scan Type",
+            "name": "command",
+            "label": "Command",
             "type": "pickList",
-            "required": true,
-            "helpMarkDown": "Select the type of scan to perform",
-            "default": "filesystem",
+            "required": false,
+            "helpMarkDown": "The command to run. Default: run",
+            "default": "run",
             "options": {
-                "filesystem": "Filesystem Scan",
-                "image": "Container Image Scan"
+                "run": "Run (Default)",
+                "pre-job": "Pre-Job",
+                "post-job": "Post-Job"
             }
         },
         {
-            "name": "fileSystemPath",
-            "label": "Filesystem Path",
-            "type": "string",
-            "required": true,
-            "helpMarkDown": "The filesystem path to scan (directory or file path)",
-            "defaultValue": "$(System.DefaultWorkingDirectory)",
-            "visibleRule": "scanType = filesystem"
+            "name": "scanType",
+            "label": "Scan Type",
+            "type": "pickList",
+            "required": false,
+            "helpMarkDown": "The type of scan to perform. Default: Container Image Scan",
+            "default": "image",
+            "defaultValue": "image",
+            "options": {
+                "image": "Container Image Scan"
+            },
+            "visibleRule": "command = run"
         },
         {
             "name": "imageName",
@@ -51,7 +56,17 @@
             "type": "string",
             "required": true,
             "helpMarkDown": "The container image name to scan (e.g., nginx:latest, myregistry.com/myapp:v1.0)",
-            "visibleRule": "scanType = image"
+            "visibleRule": "command = run && scanType = image"
+        },
+        {
+            "name": "break",
+            "label": "Break",
+            "type": "boolean",
+            "required": false,
+            "helpMarkDown": "When checked, the pipeline will break (fail) if critical vulnerabilities are found. Default: unchecked",
+            "defaultValue": false,
+            "groupName": "advanced",
+            "visibleRule": "command = run"
         },
         {
             "name": "additionalArgs",
@@ -59,7 +74,8 @@
             "type": "string",
             "required": false,
             "helpMarkDown": "Optional additional arguments to pass to the Defender CLI. These will be appended to the command as-is. Example: --scanner mdvm --custom-flag value",
-            "groupName": "advanced"
+            "groupName": "advanced",
+            "visibleRule": "command = run"
         }
     ],
     "instanceNameFormat": "Run Microsoft Defender CLI - $(scanType)",
