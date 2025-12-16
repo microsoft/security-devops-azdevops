@@ -1,0 +1,12 @@
+schemaVersion: 1.0.0
+providers:
+- provider: InventoryAsCode
+  version: 1.0.0
+  metadata:
+    isProduction: true
+    accountableOwners:
+      service: ea8ea458-e704-491d-8839-a0417a5bbb91
+    routing:
+      defaultAreaPath:
+        org: msazure
+        path: One\Security\Defender For DevOps
