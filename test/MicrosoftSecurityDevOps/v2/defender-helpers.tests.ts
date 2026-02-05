@@ -3,11 +3,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { Writable } from 'stream';
-import { 
-    ScanType, 
-    validateScanType, 
-    validateFileSystemPath, 
-    validateImageName, 
+import {
+    ScanType,
+    validateScanType,
+    validateFileSystemPath,
+    validateModelPath,
+    validateImageName,
     writeToOutStream,
     encode,
     getEncodedContent
@@ -24,6 +25,11 @@ describe('Defender Helpers Tests', () => {
         it('should return image for valid image input', () => {
             const result = validateScanType('image');
             assert.equal(result, ScanType.Image);
+        });
+
+        it('should return model for valid model input', () => {
+            const result = validateScanType('model');
+            assert.equal(result, ScanType.Model);
         });
 
         it('should throw error for invalid scan type', () => {
@@ -61,6 +67,32 @@ describe('Defender Helpers Tests', () => {
         it('should trim whitespace from valid path', () => {
             const validPath = process.cwd();
             const result = validateFileSystemPath(`  ${validPath}  `);
+            assert.equal(result, validPath);
+        });
+    });
+
+    describe('validateModelPath', () => {
+        it('should return valid path that exists', () => {
+            const validPath = process.cwd();
+            const result = validateModelPath(validPath);
+            assert.equal(result, validPath);
+        });
+
+        it('should throw error for empty path', () => {
+            assert.throws(() => validateModelPath(''), /Model path cannot be empty/);
+        });
+
+        it('should throw error for whitespace only path', () => {
+            assert.throws(() => validateModelPath('   '), /Model path cannot be empty/);
+        });
+
+        it('should throw error for non-existent path', () => {
+            assert.throws(() => validateModelPath('/non/existent/model/path/xyz123'), /Model path does not exist/);
+        });
+
+        it('should trim whitespace from valid path', () => {
+            const validPath = process.cwd();
+            const result = validateModelPath(`  ${validPath}  `);
             assert.equal(result, validPath);
         });
     });

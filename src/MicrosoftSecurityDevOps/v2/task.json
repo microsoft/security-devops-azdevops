@@ -2,8 +2,8 @@
     "id": "7d8a9b2c-3e4f-5a6b-7c8d-9e0f1a2b3c4d",
     "name": "MicrosoftDefenderCLI",
     "friendlyName": "Microsoft Defender CLI",
-    "description": "Run the Microsoft Defender CLI for security analysis with support for container image scanning.",
-    "helpMarkDown": "Runs the Microsoft Defender CLI for security analysis. Supports container image scanning with SARIF output format.",
+    "description": "Run the Microsoft Defender CLI for security analysis with support for filesystem, container image, and AI model scanning.",
+    "helpMarkDown": "Runs the Microsoft Defender CLI for security analysis. Supports filesystem scanning, container image scanning, and AI model scanning with SARIF output format.",
     "category": "Utility",
     "visibility": [
         "Build"
@@ -11,7 +11,7 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 2,
-        "Minor": 0,
+        "Minor": 1,
         "Patch": 0
     },
     "preview": true,
@@ -44,11 +44,21 @@
             "required": false,
             "helpMarkDown": "The type of scan to perform. Default: Container Image Scan",
             "default": "image",
-            "defaultValue": "image",
             "options": {
-                "image": "Container Image Scan"
+                "filesystem": "Filesystem Scan",
+                "image": "Container Image Scan",
+                "model": "AI Model Scan"
             },
             "visibleRule": "command = run"
+        },
+        {
+            "name": "fileSystemPath",
+            "label": "Filesystem Path",
+            "type": "filePath",
+            "required": false,
+            "helpMarkDown": "The path to the directory to scan for security vulnerabilities. Defaults to the repository root (Build.SourcesDirectory).",
+            "default": "$(Build.SourcesDirectory)",
+            "visibleRule": "command = run && scanType = filesystem"
         },
         {
             "name": "imageName",
@@ -59,12 +69,39 @@
             "visibleRule": "command = run && scanType = image"
         },
         {
+            "name": "modelPath",
+            "label": "AI Model Path",
+            "type": "filePath",
+            "required": true,
+            "helpMarkDown": "The path to the AI model file or directory to scan for security vulnerabilities.",
+            "visibleRule": "command = run && scanType = model"
+        },
+        {
             "name": "break",
             "label": "Break",
             "type": "boolean",
             "required": false,
             "helpMarkDown": "When checked, the pipeline will break (fail) if critical vulnerabilities are found. Default: unchecked",
             "defaultValue": false,
+            "groupName": "advanced",
+            "visibleRule": "command = run"
+        },
+        {
+            "name": "debug",
+            "label": "Debug",
+            "type": "boolean",
+            "required": false,
+            "helpMarkDown": "Enable verbose debug logging for troubleshooting. Shows detailed information about the scan process.",
+            "defaultValue": false,
+            "groupName": "advanced"
+        },
+        {
+            "name": "publishSummary",
+            "label": "Publish Summary",
+            "type": "boolean",
+            "required": false,
+            "helpMarkDown": "Publish a summary of the scan results to the pipeline summary page. Default: enabled",
+            "defaultValue": true,
             "groupName": "advanced",
             "visibleRule": "command = run"
         },

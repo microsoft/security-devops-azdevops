@@ -14,7 +14,10 @@ export enum Inputs {
     FileSystemPath = 'fileSystemPath',
     ImageName = 'imageName',
     Break = 'break',
-    AdditionalArgs = 'additionalArgs'
+    AdditionalArgs = 'additionalArgs',
+    Debug = 'debug',
+    PublishSummary = 'publishSummary',
+    ModelPath = 'modelPath'
 }
 
 /*
@@ -22,7 +25,8 @@ export enum Inputs {
 */
 export enum ScanType {
     FileSystem = 'filesystem',
-    Image = 'image'
+    Image = 'image',
+    Model = 'model'
 }
 
 /*
@@ -75,6 +79,28 @@ export function validateFileSystemPath(path: string): string {
     // Check if path exists
     if (!fs.existsSync(trimmedPath)) {
         throw new Error(`Filesystem path does not exist: ${trimmedPath}`);
+    }
+    
+    return trimmedPath;
+}
+
+/**
+ * Validates the model path input for AI model scans.
+ *
+ * @param path - The model path to validate
+ * @returns The validated path
+ * @throws An error if the path is invalid or doesn't exist
+ */
+export function validateModelPath(path: string): string {
+    if (!path || path.trim() === '') {
+        throw new Error('Model path cannot be empty for model scan');
+    }
+    
+    const trimmedPath = path.trim();
+    
+    // Check if path exists
+    if (!fs.existsSync(trimmedPath)) {
+        throw new Error(`Model path does not exist: ${trimmedPath}`);
     }
     
     return trimmedPath;
