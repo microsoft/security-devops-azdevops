@@ -85,14 +85,11 @@ export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
             tl.debug('Break on critical vulnerability enabled: adding --defender-break flag');
         }
         
-        // Handle debug mode checkbox
-        const debugMode = tl.getBoolInput(Inputs.Debug, false);
-        
         // Remove --defender-debug from additional args if it was manually added
         additionalArgs = additionalArgs.filter(arg => arg !== '--defender-debug');
         
-        // Add --verbose if the debug checkbox is checked
-        if (debugMode) {
+        // Add --defender-debug if the debug checkbox is checked
+        if (debug) {
             additionalArgs.push('--defender-debug');
             tl.debug('Debug mode enabled: adding --defender-debug flag');
         }
