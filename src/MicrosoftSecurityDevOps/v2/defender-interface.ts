@@ -1,5 +1,3 @@
-import { CommandType } from './defender-helpers';
-
 /*
 * Interface for the MicrosoftDefenderCLI task
 */
@@ -12,5 +10,5 @@ export interface IMicrosoftDefenderCLI {
 * Interface for the factory that creates IMicrosoftDefenderCLI instances
 */
 export interface IMicrosoftDefenderCLIFactory {
-    new(commandType: CommandType): IMicrosoftDefenderCLI;
+    new(): IMicrosoftDefenderCLI;
 }

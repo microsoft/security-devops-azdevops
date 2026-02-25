@@ -365,7 +365,6 @@ export function generateMarkdownSummary(
 function formatScanType(scanType: string): string {
     switch (scanType.toLowerCase()) {
         case 'fs':
-        case 'filesystem':
             return 'Filesystem';
         case 'image':
             return 'Container Image';

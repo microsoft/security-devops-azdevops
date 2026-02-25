@@ -248,11 +248,15 @@ describe('ContainerMapping Tests', () => {
             const startTime = new Date().toISOString();
             getVariableStub.withArgs(Constants.PreJobStartTime).returns(startTime);
 
-            executeStub.rejects(new Error('Command execution failed'));
+            // Only the first call should reject - the other calls should return success
+            // This simulates a failure in the docker version command
+            executeStub.onCall(0).rejects(new Error('Command execution failed'));
+            executeStub.onCall(1).resolves({ code: 0, output: '' } as ICommandResult);
+            executeStub.onCall(2).resolves({ code: 0, output: '' } as ICommandResult);
 
             const mapping = new ContainerMapping(CommandType.PostJob);
             
-            // Should not throw
+            // Should not throw due to try/catch in run()
             await mapping.run();
             
             assert.ok(true);

@@ -3,22 +3,34 @@ import { CommandExecutor, ICommandResult } from '../../../src/MicrosoftSecurityD
 import * as os from 'os';
 
 describe('CommandExecutor Tests', () => {
+    const isWindows = os.platform() === 'win32';
+    
+    // Helper to get platform-appropriate echo command
+    function getEchoCommand(message: string): { cmd: string, args: string } {
+        if (isWindows) {
+            return { cmd: 'cmd', args: `/c echo ${message}` };
+        }
+        return { cmd: 'echo', args: message };
+    }
     
     describe('Constructor', () => {
         it('should create instance with default timeout', () => {
-            const executor = new CommandExecutor('echo', 'test');
+            const { cmd, args } = getEchoCommand('test');
+            const executor = new CommandExecutor(cmd, args);
             assert.ok(executor);
         });
 
         it('should create instance with custom timeout', () => {
-            const executor = new CommandExecutor('echo', 'test', 5000);
+            const { cmd, args } = getEchoCommand('test');
+            const executor = new CommandExecutor(cmd, args, 5000);
             assert.ok(executor);
         });
     });
 
     describe('execute', () => {
         it('should execute simple command successfully', async () => {
-            const executor = new CommandExecutor('echo', 'hello');
+            const { cmd, args } = getEchoCommand('hello');
+            const executor = new CommandExecutor(cmd, args);
             const result: ICommandResult = await executor.execute();
             
             assert.equal(result.code, 0);
@@ -106,7 +118,8 @@ describe('CommandExecutor Tests', () => {
 
     describe('Output Cleaning', () => {
         it('should produce cleaned output without empty lines', async () => {
-            const executor = new CommandExecutor('echo', 'test');
+            const { cmd, args } = getEchoCommand('test');
+            const executor = new CommandExecutor(cmd, args);
             const result: ICommandResult = await executor.execute();
             
             // Cleaned output should not have excessive empty lines

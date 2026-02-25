@@ -9,28 +9,40 @@ import { Writable } from "stream";
  * Enum for the possible inputs for the task (specified in task.json)
  */
 export enum Inputs {
+    // New input names (v2 task.json)
+    Command = 'command',           // Scan type: fs, image, model
+    Args = 'args',                 // Additional arguments
+    FileSystemPath = 'fileSystemPath', // Filesystem path for fs scan
+    ImageName = 'imageName',       // Container image name
+    ModelPath = 'modelPath',       // Path to AI model
+    Break = 'break',               // Fail on critical vulnerabilities
+    Debug = 'debug',               // Enable debug logging
+    PrSummary = 'pr-summary',      // Post vulnerability summary
+    Policy = 'policy',             // Policy name (azuredevops, microsoft, none)
+    
+    // Legacy aliases for backward compatibility
+    /** @deprecated Use Command instead */
     CommandType = 'command',
-    ScanType = 'scanType',
-    FileSystemPath = 'fileSystemPath',
-    ImageName = 'imageName',
-    Break = 'break',
-    AdditionalArgs = 'additionalArgs',
-    Debug = 'debug',
-    PublishSummary = 'publishSummary',
-    ModelPath = 'modelPath'
+    /** @deprecated Use Command instead */
+    ScanType = 'command',
+    /** @deprecated Use Args instead */
+    AdditionalArgs = 'args',
+    /** @deprecated Use PrSummary instead */
+    PublishSummary = 'pr-summary'
 }
 
 /*
-* Enum for the possible values for the Inputs.ScanType (specified in task.json)
+* Enum for the possible values for the Inputs.Command (scan type, specified in task.json)
 */
 export enum ScanType {
-    FileSystem = 'filesystem',
+    FileSystem = 'fs',
     Image = 'image',
     Model = 'model'
 }
 
 /*
 * Enum for the possible values for the Inputs.CommandType (specified in task.json)
+* @deprecated - Kept for backward compatibility, use Inputs.Command with ScanType instead
 */
 export enum CommandType {
     PreJob = 'pre-job',
@@ -69,12 +81,12 @@ export function validateScanType(scanTypeInput: string): ScanType {
  * @returns The validated path
  * @throws An error if the path is invalid or doesn't exist
  */
-export function validateFileSystemPath(path: string): string {
-    if (!path || path.trim() === '') {
+export function validateFileSystemPath(fsPath: string): string {
+    if (!fsPath || fsPath.trim() === '') {
         throw new Error('Filesystem path cannot be empty for filesystem scan');
     }
     
-    const trimmedPath = path.trim();
+    const trimmedPath = fsPath.trim();
     
     // Check if path exists
     if (!fs.existsSync(trimmedPath)) {
@@ -85,22 +97,79 @@ export function validateFileSystemPath(path: string): string {
 }
 
 /**
- * Validates the model path input for AI model scans.
+ * Checks if a given string is a URL (http:// or https://).
  *
- * @param path - The model path to validate
- * @returns The validated path
- * @throws An error if the path is invalid or doesn't exist
+ * @param input - The string to check
+ * @returns True if the input is a URL, false otherwise
  */
-export function validateModelPath(path: string): string {
-    if (!path || path.trim() === '') {
+export function isUrl(input: string): boolean {
+    if (!input) {
+        return false;
+    }
+    const lowercased = input.toLowerCase();
+    return lowercased.startsWith('http://') || lowercased.startsWith('https://');
+}
+
+/**
+ * Validates a URL for model scanning.
+ *
+ * @param url - The URL to validate
+ * @returns The validated URL
+ * @throws An error if the URL format is invalid
+ */
+export function validateModelUrl(url: string): string {
+    try {
+        const parsedUrl = new URL(url);
+        
+        // Ensure protocol is http or https
+        if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+            throw new Error(`Invalid URL protocol: ${parsedUrl.protocol}. Only http:// and https:// are supported.`);
+        }
+        
+        // Ensure there's a hostname
+        if (!parsedUrl.hostname) {
+            throw new Error('URL must have a valid hostname.');
+        }
+        
+        return url;
+    } catch (error) {
+        if (error instanceof TypeError) {
+            throw new Error(`Invalid URL format: ${url}`);
+        }
+        throw error;
+    }
+}
+
+/**
+ * Validates the model path input for AI model scans.
+ * Supports both local file paths and URLs (http:// or https://).
+ *
+ * @param modelPath - The model path or URL to validate
+ * @returns The validated path or URL
+ * @throws An error if the path/URL is invalid or (for local paths) doesn't exist
+ */
+export function validateModelPath(modelPath: string): string {
+    if (!modelPath || modelPath.trim() === '') {
         throw new Error('Model path cannot be empty for model scan');
     }
     
-    const trimmedPath = path.trim();
+    const trimmedPath = modelPath.trim();
     
+    // Check if it's a URL - if so, validate as URL and return
+    if (isUrl(trimmedPath)) {
+        return validateModelUrl(trimmedPath);
+    }
+    
+    // Local path validation
     // Check if path exists
     if (!fs.existsSync(trimmedPath)) {
         throw new Error(`Model path does not exist: ${trimmedPath}`);
+    }
+    
+    // Check if it's a file or directory (both are valid for model paths)
+    const stats = fs.statSync(trimmedPath);
+    if (!stats.isFile() && !stats.isDirectory()) {
+        throw new Error(`Model path must be a file or directory: ${trimmedPath}`);
     }
     
     return trimmedPath;
@@ -129,6 +198,19 @@ export function validateImageName(imageName: string): string {
     }
     
     return trimmedImageName;
+}
+
+/**
+ * Sets up debug logging for the task.
+ * When enabled, sets the SYSTEM_DEBUG variable to enable verbose logging.
+ *
+ * @param enabled - Whether debug logging should be enabled
+ */
+export function setupDebugLogging(enabled: boolean): void {
+    if (enabled) {
+        tl.setVariable('SYSTEM_DEBUG', 'true');
+        tl.debug('Debug logging enabled');
+    }
 }
 
 /**

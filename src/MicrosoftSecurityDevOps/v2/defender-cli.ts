@@ -1,7 +1,6 @@
 import tl = require('azure-pipelines-task-lib/task');
-import * as fs from 'fs';
 import * as path from 'path';
-import { ScanType, Inputs, CommandType, validateScanType, validateFileSystemPath, validateImageName, validateModelPath, parseAdditionalArgs } from './defender-helpers';
+import { ScanType, Inputs, validateScanType, validateImageName, validateModelPath, validateFileSystemPath, parseAdditionalArgs, setupDebugLogging } from './defender-helpers';
 import { IMicrosoftDefenderCLI } from './defender-interface';
 import { scanDirectory, scanImage } from '@microsoft/security-devops-azdevops-task-lib/defender-client';
 import { postPipelineSummary } from './pipeline-summary';
@@ -10,29 +9,48 @@ import { postPipelineSummary } from './pipeline-summary';
 * Class for Microsoft Defender CLI functionality
 */
 export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
-    private readonly commandType: CommandType;
     readonly succeedOnError: boolean;
+    private prSummaryEnabled: boolean = true;
 
-    constructor(commandType: CommandType) {
-        this.commandType = commandType;
+    constructor() {
         this.succeedOnError = false;
     }
 
     private async runDefenderCLI() {
-        // Get and validate scan type
-        const scanTypeInput: string = tl.getInput(Inputs.ScanType, true) || ScanType.FileSystem;
-        const scanType = validateScanType(scanTypeInput);
+        // Get debug setting early to enable verbose logging
+        const debug = tl.getBoolInput(Inputs.Debug, false);
+        if (debug) {
+            setupDebugLogging(true);
+            tl.debug('Debug logging enabled');
+        }
+
+        // Get and validate scan type using new 'command' input with 'fs' as default
+        const command: string = tl.getInput(Inputs.Command) || 'fs';
+        const scanType = validateScanType(command);
+        
+        // Get pr-summary flag (defaults to true per task.json)
+        const prSummaryInput = tl.getBoolInput(Inputs.PrSummary, false);
+        this.prSummaryEnabled = prSummaryInput !== undefined ? prSummaryInput : true;
+        
+        // Store pr-summary flag as pipeline variable for post-processing
+        tl.setVariable('DefenderPrSummaryEnabled', this.prSummaryEnabled.toString());
+        tl.debug(`PR Summary enabled: ${this.prSummaryEnabled}`);
+        
+        // Get and parse additional arguments using new 'args' input
+        const argsInput = tl.getInput(Inputs.Args) || '';
+        let additionalArgs = parseAdditionalArgs(argsInput);
         
         let target: string;
         
         // Get target based on scan type and validate
         switch (scanType) {
             case ScanType.FileSystem:
-                const fileSystemPath = tl.getInput(Inputs.FileSystemPath, true);
-                if (!fileSystemPath) {
-                    throw new Error('Filesystem path is required for filesystem scan');
-                }
+                // For filesystem scan, get path from input or use Build.SourcesDirectory
+                const fileSystemPath = tl.getInput(Inputs.FileSystemPath, false) ||
+                                       tl.getVariable('Build.SourcesDirectory') ||
+                                       process.cwd();
                 target = validateFileSystemPath(fileSystemPath);
+                tl.debug(`Filesystem scan using directory: ${target}`);
                 break;
                 
             case ScanType.Image:
@@ -54,10 +72,6 @@ export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
             default:
                 throw new Error(`Unsupported scan type: ${scanType}`);
         }
-        
-        // Get and parse additional arguments
-        const additionalArgsInput = tl.getInput(Inputs.AdditionalArgs, false);
-        let additionalArgs = parseAdditionalArgs(additionalArgsInput);
         
         // Handle break on critical vulnerability checkbox
         const breakOnCritical = tl.getBoolInput(Inputs.Break, false);
@@ -83,15 +97,20 @@ export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
             tl.debug('Debug mode enabled: adding --defender-debug flag');
         }
         
-        // Handle publishSummary option (default true)
-        const publishSummary = tl.getBoolInput(Inputs.PublishSummary, false) !== false;
-        
         // Determine successful exit codes
         let successfulExitCodes: number[] = [0];
         
         // Generate output path
         const outputPath = path.join(process.env.BUILD_STAGINGDIRECTORY || process.cwd(), 'defender.sarif');
-        const policy = 'mdc'; // Default policy
+        
+        // Get policy from input, default to 'azuredevops'
+        const policyInput: string = tl.getInput(Inputs.Policy) || 'azuredevops';
+        let policy: string;
+        if (policyInput === 'none') {
+            policy = '';
+        } else {
+            policy = policyInput;
+        }
         
         // Log scan information
         tl.debug(`Scan Type: ${scanType}`);
@@ -108,27 +127,36 @@ export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
         
         try {
             // Execute the appropriate scan function from task lib
-            if (scanType === ScanType.FileSystem) {
-                await scanDirectory(target, policy, outputPath, successfulExitCodes, additionalArgs);
-            } else if (scanType === ScanType.Image) {
-                await scanImage(target, policy, outputPath, successfulExitCodes, additionalArgs);
-            } else if (scanType === ScanType.Model) {
-                // For model scanning, we need to use the underlying CLI directly since task-lib doesn't have scanModel()
-                // The task-lib's scan function (internal) constructs: defender scan <scanType> <target> --defender-policy <policy> --defender-output <output>
-                // We'll manually construct and run this command since we can't call the internal scan() function
-                await this.runModelScan(target, policy, outputPath, successfulExitCodes, additionalArgs);
+            switch (scanType) {
+                case ScanType.FileSystem:
+                    await scanDirectory(target, policy, outputPath, successfulExitCodes, additionalArgs);
+                    break;
+                    
+                case ScanType.Image:
+                    await scanImage(target, policy, outputPath, successfulExitCodes, additionalArgs);
+                    break;
+                    
+                case ScanType.Model:
+                    // For model scanning, we need to use the underlying CLI directly since task-lib doesn't have scanModel()
+                    await this.runModelScan(target, policy, outputPath, successfulExitCodes, additionalArgs);
+                    break;
             }
             
             // Post pipeline summary if enabled
-            if (publishSummary) {
-                try {
-                    await postPipelineSummary(outputPath, scanType, target);
-                    tl.debug('Pipeline summary posted successfully');
-                } catch (summaryError) {
-                    tl.warning(`Failed to post pipeline summary: ${summaryError}`);
-                }
+            if (this.prSummaryEnabled) {
+                tl.debug('Posting pipeline summary...');
+                await postPipelineSummary(outputPath, scanType, target);
             }
         } catch (error) {
+            // Still try to post summary on error if enabled (for partial results)
+            if (this.prSummaryEnabled) {
+                try {
+                    await postPipelineSummary(outputPath, scanType, target);
+                } catch (summaryError) {
+                    tl.debug(`Failed to post summary after error: ${summaryError}`);
+                }
+            }
+            
             tl.error(`Defender CLI execution failed: ${error}`);
             throw error;
         }
@@ -158,14 +186,18 @@ export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
             throw new Error('DEFENDER_FILEPATH environment variable is not set. Defender CLI may not be installed.');
         }
         
-        // Construct the command arguments: scan model <path> --defender-policy <policy> --defender-output <output>
+        // Construct the command arguments: scan model <path> [--defender-policy <policy>] --defender-output <output>
         const args = [
             'scan',
             'model',
             modelPath,
-            '--defender-policy', policy,
-            '--defender-output', outputPath
         ];
+        
+        if (policy) {
+            args.push('--defender-policy', policy);
+        }
+        
+        args.push('--defender-output', outputPath);
         
         // Append additional arguments if provided
         if (additionalArgs && additionalArgs.length > 0) {

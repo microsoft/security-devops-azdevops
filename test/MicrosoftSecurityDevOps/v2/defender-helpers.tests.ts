@@ -7,8 +7,11 @@ import {
     ScanType,
     validateScanType,
     validateFileSystemPath,
-    validateModelPath,
     validateImageName,
+    validateModelPath,
+    isUrl,
+    validateModelUrl,
+    setupDebugLogging,
     writeToOutStream,
     encode,
     getEncodedContent
@@ -17,8 +20,8 @@ import {
 describe('Defender Helpers Tests', () => {
     
     describe('validateScanType', () => {
-        it('should return filesystem for valid filesystem input', () => {
-            const result = validateScanType('filesystem');
+        it('should return fs for valid filesystem input', () => {
+            const result = validateScanType('fs');
             assert.equal(result, ScanType.FileSystem);
         });
 
@@ -94,6 +97,153 @@ describe('Defender Helpers Tests', () => {
             const validPath = process.cwd();
             const result = validateModelPath(`  ${validPath}  `);
             assert.equal(result, validPath);
+        });
+
+        it('should return valid path that exists (directory)', () => {
+            const validPath = process.cwd();
+            const result = validateModelPath(validPath);
+            assert.equal(result, validPath);
+        });
+
+        it('should return valid path that exists (file)', () => {
+            // Use __dirname to navigate to project root since compiled tests run from test/lib/test/MicrosoftSecurityDevOps/v2/
+            // Go up 5 levels: v2 -> MicrosoftSecurityDevOps -> test -> lib -> test -> project root
+            const validPath = path.join(__dirname, '..', '..', '..', '..', '..', 'package.json');
+            const result = validateModelPath(validPath);
+            assert.equal(result, validPath);
+        });
+
+        // URL validation tests for model paths
+        it('should accept valid HTTPS URL', () => {
+            const url = 'https://huggingface.co/bert-base-uncased/resolve/main/pytorch_model.bin';
+            const result = validateModelPath(url);
+            assert.equal(result, url);
+        });
+
+        it('should accept valid HTTP URL', () => {
+            const url = 'http://models.example.com/v1/models/model.safetensors';
+            const result = validateModelPath(url);
+            assert.equal(result, url);
+        });
+
+        it('should accept URL with port number', () => {
+            const url = 'https://localhost:8080/models/test.onnx';
+            const result = validateModelPath(url);
+            assert.equal(result, url);
+        });
+
+        it('should accept URL with query parameters', () => {
+            const url = 'https://storage.example.com/models/model.bin?token=abc123';
+            const result = validateModelPath(url);
+            assert.equal(result, url);
+        });
+
+        it('should trim whitespace from URL', () => {
+            const url = '  https://example.com/model.bin  ';
+            const result = validateModelPath(url);
+            assert.equal(result, 'https://example.com/model.bin');
+        });
+    });
+
+    describe('isUrl', () => {
+        it('should return true for HTTPS URL', () => {
+            assert.equal(isUrl('https://example.com/model'), true);
+        });
+
+        it('should return true for HTTP URL', () => {
+            assert.equal(isUrl('http://example.com/model'), true);
+        });
+
+        it('should return true for HTTPS URL (case insensitive)', () => {
+            assert.equal(isUrl('HTTPS://example.com/model'), true);
+        });
+
+        it('should return true for HTTP URL (case insensitive)', () => {
+            assert.equal(isUrl('HTTP://example.com/model'), true);
+        });
+
+        it('should return false for local path', () => {
+            assert.equal(isUrl('/path/to/model'), false);
+        });
+
+        it('should return false for Windows path', () => {
+            assert.equal(isUrl('C:\\path\\to\\model'), false);
+        });
+
+        it('should return false for relative path', () => {
+            assert.equal(isUrl('./models/model.bin'), false);
+        });
+
+        it('should return false for empty string', () => {
+            assert.equal(isUrl(''), false);
+        });
+
+        it('should return false for null', () => {
+            assert.equal(isUrl(null as any), false);
+        });
+
+        it('should return false for undefined', () => {
+            assert.equal(isUrl(undefined as any), false);
+        });
+
+        it('should return false for ftp URL', () => {
+            assert.equal(isUrl('ftp://example.com/model'), false);
+        });
+
+        it('should return false for file URL', () => {
+            assert.equal(isUrl('file:///path/to/model'), false);
+        });
+    });
+
+    describe('validateModelUrl', () => {
+        it('should return valid HTTPS URL', () => {
+            const url = 'https://example.com/model.bin';
+            const result = validateModelUrl(url);
+            assert.equal(result, url);
+        });
+
+        it('should return valid HTTP URL', () => {
+            const url = 'http://example.com/model.bin';
+            const result = validateModelUrl(url);
+            assert.equal(result, url);
+        });
+
+        it('should accept URL with complex path', () => {
+            const url = 'https://huggingface.co/org/repo/resolve/main/model.safetensors';
+            const result = validateModelUrl(url);
+            assert.equal(result, url);
+        });
+
+        it('should accept URL with query string', () => {
+            const url = 'https://storage.example.com/model?sas=token123&version=1';
+            const result = validateModelUrl(url);
+            assert.equal(result, url);
+        });
+
+        it('should accept URL with port', () => {
+            const url = 'https://localhost:3000/models/model.onnx';
+            const result = validateModelUrl(url);
+            assert.equal(result, url);
+        });
+
+        it('should throw error for invalid URL format', () => {
+            assert.throws(() => validateModelUrl('not-a-valid-url'), /Invalid URL format/);
+        });
+
+        it('should throw error for ftp protocol', () => {
+            assert.throws(() => validateModelUrl('ftp://example.com/model'), /Invalid URL protocol/);
+        });
+
+        it('should throw error for file protocol', () => {
+            assert.throws(() => validateModelUrl('file:///path/to/model'), /Invalid URL protocol/);
+        });
+
+        it('should throw error for invalid URL', () => {
+            assert.throws(() => validateModelUrl('not-a-valid-url'), /Invalid URL format/);
+        });
+
+        it('should throw error for malformed URL', () => {
+            assert.throws(() => validateModelUrl('://missing-protocol.com/path'), /Invalid URL format/);
         });
     });
 
@@ -216,6 +366,18 @@ describe('Defender Helpers Tests', () => {
             assert.ok(decoded.includes('DockerVersion:'));
             assert.ok(decoded.includes('DockerEvents:'));
             assert.ok(decoded.includes('DockerImages:'));
+        });
+    });
+
+    describe('setupDebugLogging', () => {
+        it('should not throw when enabled is true', () => {
+            // Note: This test verifies no errors are thrown
+            // The actual tl.setVariable call is mocked in the task-lib
+            assert.doesNotThrow(() => setupDebugLogging(true));
+        });
+
+        it('should not throw when enabled is false', () => {
+            assert.doesNotThrow(() => setupDebugLogging(false));
         });
     });
 });
