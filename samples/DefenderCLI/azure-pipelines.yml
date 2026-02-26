@@ -1,0 +1,260 @@
+# Microsoft Defender CLI Sample Pipeline
+# This pipeline demonstrates various security scanning scenarios using the MicrosoftDefenderCLI@2 task
+#
+# Task Inputs Reference:
+# - command: 'run' (default), 'pre-job', or 'post-job'
+# - scanType: 'filesystem', 'image' (default), or 'model'
+# - fileSystemPath: Path to scan (for filesystem scans)
+# - imageName: Container image to scan (for image scans)
+# - modelPath: AI model path to scan (for model scans)
+# - debug: Enable verbose logging (boolean)
+# - publishSummary: Publish results to pipeline summary (boolean, default: true)
+# - break: Fail pipeline on critical vulnerabilities (boolean)
+# - additionalArgs: Extra CLI arguments (string)
+
+trigger:
+  - main
+  - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  containerRegistry: 'myregistry.azurecr.io'
+  imageName: 'myapp'
+  imageTag: '$(Build.BuildId)'
+
+stages:
+  # ==============================================================================
+  # Stage 1: Filesystem Security Scan
+  # ==============================================================================
+  - stage: FilesystemScan
+    displayName: 'Filesystem Security Scan'
+    jobs:
+      - job: BasicFilesystemScan
+        displayName: 'Basic Filesystem Scan'
+        steps:
+          # Basic Usage - Filesystem scan with default path (Build.SourcesDirectory)
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Scan Source Code (Filesystem)'
+            inputs:
+              command: 'run'
+              scanType: 'filesystem'
+
+      - job: FilesystemScanWithOptions
+        displayName: 'Filesystem Scan with Options'
+        steps:
+          # Full filesystem scan configuration with debug and break options
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Filesystem Scan - Full Options'
+            inputs:
+              command: 'run'
+              scanType: 'filesystem'
+              fileSystemPath: '$(Build.SourcesDirectory)/src'
+              debug: true
+              publishSummary: true
+              break: true
+              additionalArgs: '--exclude node_modules --exclude .git'
+
+      - job: FilesystemScanNoSummary
+        displayName: 'Filesystem Scan without Pipeline Summary'
+        steps:
+          # Filesystem scan with publishSummary disabled
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Scan without Publishing Summary'
+            inputs:
+              command: 'run'
+              scanType: 'filesystem'
+              publishSummary: false
+
+  # ==============================================================================
+  # Stage 2: Container Image Security Scan
+  # ==============================================================================
+  - stage: ContainerImageScan
+    displayName: 'Container Image Security Scan'
+    dependsOn: FilesystemScan
+    jobs:
+      - job: BuildAndScanImage
+        displayName: 'Build and Scan Container Image'
+        steps:
+          # Build the container image first
+          - task: Docker@2
+            displayName: 'Build Container Image'
+            inputs:
+              command: 'build'
+              Dockerfile: '**/Dockerfile'
+              tags: |
+                $(containerRegistry)/$(imageName):$(imageTag)
+                $(containerRegistry)/$(imageName):latest
+
+          # Basic container image scan
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Scan Container Image'
+            inputs:
+              command: 'run'
+              scanType: 'image'
+              imageName: '$(containerRegistry)/$(imageName):$(imageTag)'
+
+      - job: ScanPublicImage
+        displayName: 'Scan Public Container Image'
+        steps:
+          # Scan a public container image
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Scan nginx:latest'
+            inputs:
+              command: 'run'
+              scanType: 'image'
+              imageName: 'nginx:latest'
+              publishSummary: true
+
+      - job: ScanImageWithDebug
+        displayName: 'Scan Image with Debug Enabled'
+        steps:
+          # Image scan with debug logging enabled
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Scan with Debug Mode'
+            inputs:
+              command: 'run'
+              scanType: 'image'
+              imageName: 'myapp:latest'
+              debug: true
+              publishSummary: true
+
+      - job: ScanImageWithBreak
+        displayName: 'Scan Image - Fail on Critical'
+        steps:
+          # Image scan that fails the pipeline on critical vulnerabilities
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Scan Image - Break on Critical'
+            inputs:
+              command: 'run'
+              scanType: 'image'
+              imageName: '$(containerRegistry)/$(imageName):$(imageTag)'
+              break: true
+              publishSummary: true
+
+  # ==============================================================================
+  # Stage 3: AI Model Security Scan
+  # ==============================================================================
+  - stage: ModelScan
+    displayName: 'AI Model Security Scan'
+    dependsOn: FilesystemScan
+    jobs:
+      - job: ScanAIModel
+        displayName: 'Scan AI Model'
+        steps:
+          # Basic AI model scan
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Scan AI Model'
+            inputs:
+              command: 'run'
+              scanType: 'model'
+              modelPath: '$(Build.SourcesDirectory)/models/mymodel'
+
+      - job: ScanModelWithOptions
+        displayName: 'Scan Model with All Options'
+        steps:
+          # Model scan with full configuration
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Scan AI Model with Debug'
+            inputs:
+              command: 'run'
+              scanType: 'model'
+              modelPath: '$(Build.SourcesDirectory)/ml-models/production-model'
+              debug: true
+              publishSummary: true
+              break: true
+
+  # ==============================================================================
+  # Stage 4: Combined Security Scan Pipeline
+  # ==============================================================================
+  - stage: CombinedScan
+    displayName: 'Combined Security Scans'
+    dependsOn:
+      - FilesystemScan
+      - ContainerImageScan
+      - ModelScan
+    jobs:
+      - job: FullSecurityScan
+        displayName: 'Full Security Scan'
+        steps:
+          # Run all scan types in sequence
+          
+          # 1. Filesystem scan
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Step 1: Scan Filesystem'
+            inputs:
+              command: 'run'
+              scanType: 'filesystem'
+              publishSummary: true
+
+          # 2. Build container image
+          - task: Docker@2
+            displayName: 'Step 2: Build Image'
+            inputs:
+              command: 'build'
+              Dockerfile: '**/Dockerfile'
+              tags: '$(containerRegistry)/$(imageName):$(imageTag)'
+
+          # 3. Scan container image
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Step 3: Scan Container Image'
+            inputs:
+              command: 'run'
+              scanType: 'image'
+              imageName: '$(containerRegistry)/$(imageName):$(imageTag)'
+              publishSummary: true
+              break: true
+
+          # 4. Scan AI model (if applicable)
+          - task: MicrosoftDefenderCLI@2
+            displayName: 'Step 4: Scan AI Model'
+            condition: eq(variables['ScanModels'], 'true')
+            inputs:
+              command: 'run'
+              scanType: 'model'
+              modelPath: '$(Build.SourcesDirectory)/models'
+              publishSummary: true
+
+# ==============================================================================
+# Additional Examples
+# ==============================================================================
+#
+# Example: Using variables for dynamic configuration
+# - task: MicrosoftDefenderCLI@2
+#   inputs:
+#     command: 'run'
+#     scanType: ${{ variables.scanType }}
+#     imageName: ${{ variables.targetImage }}
+#     debug: ${{ variables.enableDebug }}
+#
+# Example: Conditional scanning based on branch
+# - task: MicrosoftDefenderCLI@2
+#   condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+#   inputs:
+#     command: 'run'
+#     scanType: 'filesystem'
+#     break: true
+#
+# Example: Matrix strategy for multiple images
+# strategy:
+#   matrix:
+#     frontend:
+#       targetImage: 'frontend:latest'
+#     backend:
+#       targetImage: 'backend:latest'
+#     api:
+#       targetImage: 'api:latest'
+# steps:
+#   - task: MicrosoftDefenderCLI@2
+#     inputs:
+#       command: 'run'
+#       scanType: 'image'
+#       imageName: $(targetImage)
+#
+# Example: Using additionalArgs for custom CLI options
+# - task: MicrosoftDefenderCLI@2
+#   inputs:
+#     command: 'run'
+#     scanType: 'filesystem'
+#     additionalArgs: '--scanner mdvm --severity high,critical'

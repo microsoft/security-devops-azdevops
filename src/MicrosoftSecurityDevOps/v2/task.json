@@ -2,8 +2,8 @@
     "id": "7d8a9b2c-3e4f-5a6b-7c8d-9e0f1a2b3c4d",
     "name": "MicrosoftDefenderCLI",
     "friendlyName": "Microsoft Defender CLI",
-    "description": "Run the Microsoft Defender CLI for security analysis with support for container image scanning.",
-    "helpMarkDown": "Runs the Microsoft Defender CLI for security analysis. Supports container image scanning with SARIF output format.",
+    "description": "Run the Microsoft Defender CLI for security analysis with support for filesystem, container image, and AI model scanning.",
+    "helpMarkDown": "Runs the Microsoft Defender CLI for security analysis. Supports filesystem scanning, container image scanning, and AI model scanning with SARIF output format.",
     "category": "Utility",
     "visibility": [
         "Build"
@@ -11,7 +11,7 @@
     "author": "Microsoft Corporation",
     "version": {
         "Major": 2,
-        "Minor": 0,
+        "Minor": 1,
         "Patch": 0
     },
     "preview": true,
@@ -26,29 +26,25 @@
     "inputs": [
         {
             "name": "command",
-            "label": "Command",
-            "type": "pickList",
-            "required": false,
-            "helpMarkDown": "The command to run. Default: run",
-            "default": "run",
-            "options": {
-                "run": "Run (Default)",
-                "pre-job": "Pre-Job",
-                "post-job": "Post-Job"
-            }
-        },
-        {
-            "name": "scanType",
             "label": "Scan Type",
             "type": "pickList",
             "required": false,
-            "helpMarkDown": "The type of scan to perform. Default: Container Image Scan",
-            "default": "image",
-            "defaultValue": "image",
+            "helpMarkDown": "The type of defender scan to perform. Default: Filesystem Scan",
+            "default": "fs",
             "options": {
-                "image": "Container Image Scan"
-            },
-            "visibleRule": "command = run"
+                "fs": "Filesystem Scan",
+                "image": "Container Image Scan",
+                "model": "AI Model Scan"
+            }
+        },
+        {
+            "name": "fileSystemPath",
+            "label": "Filesystem Path",
+            "type": "filePath",
+            "required": false,
+            "default": "$(Build.SourcesDirectory)",
+            "helpMarkDown": "The filesystem path to scan for security vulnerabilities. Defaults to the repository root directory.",
+            "visibleRule": "command = fs"
         },
         {
             "name": "imageName",
@@ -56,29 +52,67 @@
             "type": "string",
             "required": true,
             "helpMarkDown": "The container image name to scan (e.g., nginx:latest, myregistry.com/myapp:v1.0)",
-            "visibleRule": "command = run && scanType = image"
+            "visibleRule": "command = image"
+        },
+        {
+            "name": "modelPath",
+            "label": "AI Model Path or URL",
+            "type": "string",
+            "required": true,
+            "helpMarkDown": "The path to the AI model file/directory or a URL (http:// or https://) pointing to the model to scan for security vulnerabilities.",
+            "visibleRule": "command = model"
+        },
+        {
+            "name": "policy",
+            "label": "Policy",
+            "type": "pickList",
+            "required": false,
+            "helpMarkDown": "The name of a well known Microsoft policy. If no configuration is provided, the policy may instruct the Defender CLI what tools to run. Default: azuredevops",
+            "default": "azuredevops",
+            "options": {
+                "azuredevops": "azuredevops",
+                "microsoft": "microsoft",
+                "none": "none"
+            },
+            "groupName": "advanced"
+        },
+        {
+            "name": "args",
+            "label": "Additional Arguments",
+            "type": "string",
+            "required": false,
+            "helpMarkDown": "Additional arguments to pass to the Defender CLI. These will be appended to the command as-is.",
+            "default": "",
+            "groupName": "advanced"
+        },
+        {
+            "name": "debug",
+            "label": "Enable Debug Logs",
+            "type": "boolean",
+            "required": false,
+            "helpMarkDown": "Enable verbose logging for troubleshooting.",
+            "default": "false",
+            "groupName": "advanced"
+        },
+        {
+            "name": "pr-summary",
+            "label": "Post Vulnerability Summary",
+            "type": "boolean",
+            "required": false,
+            "helpMarkDown": "Add summary of new vulnerabilities to pipeline summary.",
+            "default": "true"
         },
         {
             "name": "break",
-            "label": "Break",
+            "label": "Fail on Critical Vulnerabilities",
             "type": "boolean",
             "required": false,
-            "helpMarkDown": "When checked, the pipeline will break (fail) if critical vulnerabilities are found. Default: unchecked",
-            "defaultValue": false,
-            "groupName": "advanced",
-            "visibleRule": "command = run"
-        },
-        {
-            "name": "additionalArgs",
-            "label": "Additional CLI Arguments",
-            "type": "string",
-            "required": false,
-            "helpMarkDown": "Optional additional arguments to pass to the Defender CLI. These will be appended to the command as-is. Example: --scanner mdvm --custom-flag value",
-            "groupName": "advanced",
-            "visibleRule": "command = run"
+            "helpMarkDown": "When checked, the pipeline will fail if critical vulnerabilities are found.",
+            "default": "false",
+            "groupName": "advanced"
         }
     ],
-    "instanceNameFormat": "Run Microsoft Defender CLI - $(scanType)",
+    "instanceNameFormat": "Run Microsoft Defender CLI - $(command)",
     "execution": {
         "Node18": {
             "target": "index.js"
