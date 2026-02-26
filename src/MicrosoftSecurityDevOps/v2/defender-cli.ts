@@ -24,8 +24,8 @@ export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
             tl.debug('Debug logging enabled');
         }
 
-        // Get and validate scan type using new 'command' input with 'fs' as default
-        const command: string = tl.getInput(Inputs.Command) || 'fs';
+        // Get and validate scan type using new 'command' input with 'image' as default
+        const command: string = tl.getInput(Inputs.Command) || 'image';
         const scanType = validateScanType(command);
         
         // Get pr-summary flag (defaults to true per task.json)
@@ -100,8 +100,8 @@ export class MicrosoftDefenderCLI implements IMicrosoftDefenderCLI {
         // Generate output path
         const outputPath = path.join(process.env.BUILD_STAGINGDIRECTORY || process.cwd(), 'defender.sarif');
         
-        // Get policy from input, default to 'azuredevops'
-        const policyInput: string = tl.getInput(Inputs.Policy) || 'azuredevops';
+        // Get policy from input, default to 'mdc'
+        const policyInput: string = tl.getInput(Inputs.Policy) || 'mdc';
         let policy: string;
         if (policyInput === 'none') {
             policy = '';

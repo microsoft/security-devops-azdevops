@@ -55,9 +55,9 @@ describe('MicrosoftDefenderCLI Tests', () => {
     });
 
     describe('run - FileSystem Scan', () => {
-        it('should execute filesystem scan successfully with default command', async () => {
-            // Command defaults to 'fs' when not provided
-            getInputStub.withArgs(Inputs.Command).returns(null);
+        it('should execute filesystem scan successfully with explicit fs command', async () => {
+            // Explicitly set command to 'fs' since default is now 'image'
+            getInputStub.withArgs(Inputs.Command).returns('fs');
             getInputStub.withArgs(Inputs.Policy).returns(null);
             getInputStub.withArgs(Inputs.Args).returns('');
             scanDirectoryStub.resolves();
@@ -69,25 +69,13 @@ describe('MicrosoftDefenderCLI Tests', () => {
             assert.ok(scanDirectoryStub.calledOnce);
             assert.ok(scanDirectoryStub.calledWith(
                 process.cwd(),
-                'azuredevops',
+                'mdc',
                 sinon.match.string,
                 [0],
                 sinon.match.array
             ));
         });
 
-        it('should execute filesystem scan with explicit fs command', async () => {
-            getInputStub.withArgs(Inputs.Command).returns('fs');
-            getInputStub.withArgs(Inputs.Policy).returns(null);
-            getInputStub.withArgs(Inputs.Args).returns('');
-            scanDirectoryStub.resolves();
-            postPipelineSummaryStub.resolves();
-
-            const cli = new MicrosoftDefenderCLI();
-            await cli.run();
-
-            assert.ok(scanDirectoryStub.calledOnce);
-        });
 
         it('should handle scan directory errors', async () => {
             getInputStub.withArgs(Inputs.Command).returns('fs');
@@ -109,7 +97,29 @@ describe('MicrosoftDefenderCLI Tests', () => {
     });
 
     describe('run - Image Scan', () => {
-        it('should execute image scan successfully', async () => {
+        it('should execute image scan successfully with default command', async () => {
+            // Command defaults to 'image' when not provided
+            getInputStub.withArgs(Inputs.Command).returns(null);
+            getInputStub.withArgs(Inputs.ImageName, true).returns('nginx:latest');
+            getInputStub.withArgs(Inputs.Policy).returns(null);
+            getInputStub.withArgs(Inputs.Args).returns('');
+            scanImageStub.resolves();
+            postPipelineSummaryStub.resolves();
+
+            const cli = new MicrosoftDefenderCLI();
+            await cli.run();
+
+            assert.ok(scanImageStub.calledOnce);
+            assert.ok(scanImageStub.calledWith(
+                'nginx:latest',
+                'mdc',
+                sinon.match.string,
+                [0],
+                sinon.match.array
+            ));
+        });
+
+        it('should execute image scan successfully with explicit image command', async () => {
             getInputStub.withArgs(Inputs.Command).returns('image');
             getInputStub.withArgs(Inputs.ImageName, true).returns('nginx:latest');
             getInputStub.withArgs(Inputs.Policy).returns(null);
@@ -123,7 +133,7 @@ describe('MicrosoftDefenderCLI Tests', () => {
             assert.ok(scanImageStub.calledOnce);
             assert.ok(scanImageStub.calledWith(
                 'nginx:latest',
-                'azuredevops',
+                'mdc',
                 sinon.match.string,
                 [0],
                 sinon.match.array
@@ -278,17 +288,18 @@ describe('MicrosoftDefenderCLI Tests', () => {
             }
         });
 
-        it('should default to filesystem when command is not provided', async () => {
+        it('should default to image scan when command is not provided', async () => {
             getInputStub.withArgs(Inputs.Command).returns(null);
+            getInputStub.withArgs(Inputs.ImageName, true).returns('nginx:latest');
             getInputStub.withArgs(Inputs.Policy).returns(null);
             getInputStub.withArgs(Inputs.Args).returns('');
-            scanDirectoryStub.resolves();
+            scanImageStub.resolves();
             postPipelineSummaryStub.resolves();
 
             const cli = new MicrosoftDefenderCLI();
             await cli.run();
 
-            assert.ok(scanDirectoryStub.calledOnce);
+            assert.ok(scanImageStub.calledOnce);
         });
     });
 
@@ -426,7 +437,7 @@ describe('MicrosoftDefenderCLI Tests', () => {
         });
     
         describe('Policy Input', () => {
-            it('should default policy to azuredevops when no input is provided', async () => {
+            it('should default policy to mdc when no input is provided', async () => {
                 getInputStub.withArgs(Inputs.Command).returns('fs');
                 getInputStub.withArgs(Inputs.Policy).returns(null);
                 getInputStub.withArgs(Inputs.Args).returns('');
@@ -438,7 +449,7 @@ describe('MicrosoftDefenderCLI Tests', () => {
     
                 assert.ok(scanDirectoryStub.calledOnce);
                 const policyArg = scanDirectoryStub.firstCall.args[1];
-                assert.equal(policyArg, 'azuredevops', 'Expected default policy to be azuredevops');
+                assert.equal(policyArg, 'mdc', 'Expected default policy to be mdc');
             });
     
             it('should pass microsoft policy when selected', async () => {
