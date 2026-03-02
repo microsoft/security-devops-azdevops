@@ -1,0 +1,66 @@
+# Sync repository labels from .github/labels.yml
+# Runs on push to main (when labels.yml changes) and on manual dispatch.
+name: Sync Labels
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/labels.yml]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  migrate:
+    name: Migrate legacy labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rename old labels to new taxonomy
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const renames = [
+              { from: 'bug',           to: 'type:bug' },
+              { from: 'enhancement',   to: 'type:feature' },
+              { from: 'documentation', to: 'type:docs' },
+              { from: 'question',      to: 'type:question' },
+              { from: 'duplicate',     to: 'resolution:duplicate' },
+              { from: 'wontfix',       to: 'resolution:wontfix' },
+              { from: 'invalid',       to: 'resolution:invalid' },
+              { from: 'needs-info',    to: 'status:waiting-on-author' },
+              { from: 'needs-maintainer', to: 'status:team-review' },
+            ];
+            for (const { from, to } of renames) {
+              try {
+                await github.rest.issues.updateLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: from,
+                  new_name: to,
+                });
+                core.info(`Renamed "${from}" → "${to}"`);
+              } catch (e) {
+                if (e.status === 404) {
+                  core.info(`Label "${from}" not found, skipping`);
+                } else {
+                  core.warning(`Failed to rename "${from}": ${e.message}`);
+                }
+              }
+            }
+
+  sync:
+    name: Sync labels from manifest
+    needs: migrate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sync labels
+        uses: micnncim/action-label-syncer@v1
+        with:
+          manifest: .github/labels.yml
+          prune: false # flip to true once migration is verified
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
