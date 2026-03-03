@@ -22,9 +22,9 @@
 # For more information: https://github.github.com/gh-aw/introduction/overview/
 #
 #
-# frontmatter-hash: 80102642ae6a7c0c1f7d98b9b60a76c4d412db4ed3c5e25d44151b438f391379
+# frontmatter-hash: d490950c5d4b5ccd2f9f3351d8166a8d3b290b058bb0cc23ca7b650e6126ea0f
 
-name: "MSDO Azure DevOps Extension Issue Triage Assistant"
+name: "Issue Triage Assistant"
 "on":
   issue_comment:
     types:
@@ -39,7 +39,7 @@ permissions: {}
 concurrency:
   group: "gh-aw-${{ github.workflow }}-${{ github.event.issue.number }}"
 
-run-name: "MSDO Azure DevOps Extension Issue Triage Assistant"
+run-name: "Issue Triage Assistant"
 
 jobs:
   activation:
@@ -138,7 +138,7 @@ jobs:
               version: "",
               agent_version: "0.0.409",
               cli_version: "v0.43.23",
-              workflow_name: "MSDO Azure DevOps Extension Issue Triage Assistant",
+              workflow_name: "Issue Triage Assistant",
               experimental: false,
               supports_tools_allowlist: true,
               supports_http_transport: true,
@@ -768,7 +768,7 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         env:
           GH_AW_AGENT_OUTPUT: ${{ env.GH_AW_AGENT_OUTPUT }}
-          GH_AW_WORKFLOW_NAME: "MSDO Azure DevOps Extension Issue Triage Assistant"
+          GH_AW_WORKFLOW_NAME: "Issue Triage Assistant"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
@@ -781,7 +781,7 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         env:
           GH_AW_AGENT_OUTPUT: ${{ env.GH_AW_AGENT_OUTPUT }}
-          GH_AW_WORKFLOW_NAME: "MSDO Azure DevOps Extension Issue Triage Assistant"
+          GH_AW_WORKFLOW_NAME: "Issue Triage Assistant"
           GH_AW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GH_AW_AGENT_CONCLUSION: ${{ needs.agent.result }}
           GH_AW_WORKFLOW_ID: "msdo-issue-assistant"
@@ -799,7 +799,7 @@ jobs:
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         env:
           GH_AW_AGENT_OUTPUT: ${{ env.GH_AW_AGENT_OUTPUT }}
-          GH_AW_WORKFLOW_NAME: "MSDO Azure DevOps Extension Issue Triage Assistant"
+          GH_AW_WORKFLOW_NAME: "Issue Triage Assistant"
           GH_AW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           GH_AW_AGENT_CONCLUSION: ${{ needs.agent.result }}
         with:
@@ -817,7 +817,7 @@ jobs:
           GH_AW_COMMENT_ID: ${{ needs.activation.outputs.comment_id }}
           GH_AW_COMMENT_REPO: ${{ needs.activation.outputs.comment_repo }}
           GH_AW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          GH_AW_WORKFLOW_NAME: "MSDO Azure DevOps Extension Issue Triage Assistant"
+          GH_AW_WORKFLOW_NAME: "Issue Triage Assistant"
           GH_AW_AGENT_CONCLUSION: ${{ needs.agent.result }}
           GH_AW_DETECTION_CONCLUSION: ${{ needs.detection.result }}
         with:
@@ -861,7 +861,7 @@ jobs:
       - name: Setup threat detection
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         env:
-          WORKFLOW_NAME: "MSDO Azure DevOps Extension Issue Triage Assistant"
+          WORKFLOW_NAME: "Issue Triage Assistant"
           WORKFLOW_DESCRIPTION: "No description provided"
           HAS_PATCH: ${{ needs.agent.outputs.has_patch }}
         with:
@@ -942,7 +942,7 @@ jobs:
     env:
       GH_AW_ENGINE_ID: "copilot"
       GH_AW_WORKFLOW_ID: "msdo-issue-assistant"
-      GH_AW_WORKFLOW_NAME: "MSDO Azure DevOps Extension Issue Triage Assistant"
+      GH_AW_WORKFLOW_NAME: "Issue Triage Assistant"
     outputs:
       create_discussion_error_count: ${{ steps.process_safe_outputs.outputs.create_discussion_error_count }}
       create_discussion_errors: ${{ steps.process_safe_outputs.outputs.create_discussion_errors }}

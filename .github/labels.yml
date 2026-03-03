@@ -1,12 +1,11 @@
 # =============================================================================
 # Label Taxonomy for microsoft/security-devops-azdevops
 # =============================================================================
-# Synced by .github/workflows/sync-labels.yml using micnncim/action-label-syncer
+# Labels are managed directly via the GitHub API.
+# This file serves as the source of truth for the label definitions.
 #
 # Naming convention: <group>:<value> (lowercase, kebab-case)
 # Color convention:  consistent within each group for at-a-glance filtering
-#
-# To propose changes, edit this file and open a PR.
 # =============================================================================
 
 # ---------------------------------------------------------------------------
@@ -89,16 +88,16 @@
 # ---------------------------------------------------------------------------
 # Area — what component
 # ---------------------------------------------------------------------------
-- name: "area:extension"
-  description: "Azure DevOps extension definition, tasks, and packaging"
-  color: "c5def5"
-
-- name: "area:msdo-cli"
-  description: "MSDO CLI integration and execution"
+- name: "area:task"
+  description: "Azure DevOps build task definition and configuration"
   color: "c5def5"
 
 - name: "area:container-mapping"
   description: "Container image mapping functionality"
+  color: "c5def5"
+
+- name: "area:tools"
+  description: "Individual security tool configuration and issues"
   color: "c5def5"
 
 - name: "area:pipeline"
