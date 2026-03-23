@@ -212,6 +212,8 @@
         <Message Text="Staging extension files to directory: $(StagingDirectory)" />
 
         <RemoveDir Directories="$(StagingNodeModulesBinDirectory)" Condition=" Exists('$(StagingNodeModulesBinDirectory)') " />
+        <!-- Remove nested .bin directories created by sub-dependencies (contain unsigned .ps1 scripts that fail CodeSign) -->
+        <Exec Command="for /d /r &quot;$(LibNodeModulesDirectory)&quot; %%d in (.bin) do @if exist &quot;%%d&quot; rd /s /q &quot;%%d&quot;" Condition=" Exists('$(LibNodeModulesDirectory)') " />
         <Delete Files="$(StagingPackageLockJsonFilePath)" Condition=" Exists('$(StagingPackageLockJsonFilePath)') " />
         <Delete Files="$(RepoDirectory)/package-lock.json" Condition=" Exists('$(RepoDirectory)/package-lock.json') " />
 
