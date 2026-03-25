@@ -15,8 +15,8 @@
     },
     "dependencies": {
         "@microsoft/security-devops-azdevops-task-lib": "1.13.1",
-        "azure-pipelines-task-lib": "^4.13.0",
-        "azure-pipelines-tool-lib": "^2.0.7",
+        "azure-pipelines-task-lib": "^5.2.4",
+        "azure-pipelines-tool-lib": "^2.0.12",
         "mockery": "2.1.0",
         "uuid": "^9.0.1"
     },
