@@ -16,7 +16,7 @@
         "@microsoft/security-devops-azdevops-task-lib": "1.13.0",
         "azure-pipelines-task-lib": "^4.13.0",
         "azure-pipelines-tool-lib": "^2.0.7",
-        "uuid": "^9.0.1"
+        "uuid": "^14.0.0"
     },
     "devDependencies": {
         "@types/mocha": "^10.0.1",
