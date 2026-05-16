@@ -1,0 +1,24 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+# Fixture for verifying the CKV_AZUREPIPELINES_* severity promotion tracked in
+# issue #164. The job's `container` field is what Checkov's `azure_pipelines`
+# framework inspects, so referencing `ubuntu:latest` here triggers:
+#   - CKV_AZUREPIPELINES_1: container job uses a non-latest version tag
+#   - CKV_AZUREPIPELINES_2: container job uses a version digest (missing @sha256)
+jobs:
+- job: build
+  container: ubuntu:latest
+  steps:
+  - script: echo "Hello from a :latest tagged container"
+
+  - task: MicrosoftSecurityDevOps@1
+    displayName: 'Microsoft Security DevOps'
+    inputs:
+      tools: 'checkov'
+      # Flip between true/false to validate AC4 from issue #164. With default
+      # --min-severity Error, AZUREPIPELINES warnings must not break the build,
+      # so both runs should complete with `succeeded` status.
+      # break: true
