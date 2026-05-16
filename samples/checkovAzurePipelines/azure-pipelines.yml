@@ -3,32 +3,22 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
-# This pipeline is a fixture for verifying the CKV_AZUREPIPELINES_* severity
-# promotion described in issue #164. The container step below references an
-# image with the :latest tag, which triggers Checkov rule CKV_AZUREPIPELINES_2
-# ("Ensure container images are not pulled from the latest tag") when MSDO runs
-# Checkov against this azure-pipelines.yml file.
-steps:
-- task: Bash@3
-  displayName: 'Run command in :latest container (triggers CKV_AZUREPIPELINES_2)'
-  target:
-    container: latest_image
-  inputs:
-    targetType: 'inline'
-    script: |
-      echo "Hello from a :latest tagged container"
+# Fixture for verifying the CKV_AZUREPIPELINES_* severity promotion tracked in
+# issue #164. The job's `container` field is what Checkov's `azure_pipelines`
+# framework inspects, so referencing `ubuntu:latest` here triggers:
+#   - CKV_AZUREPIPELINES_1: container job uses a non-latest version tag
+#   - CKV_AZUREPIPELINES_2: container job uses a version digest (missing @sha256)
+jobs:
+- job: build
+  container: ubuntu:latest
+  steps:
+  - script: echo "Hello from a :latest tagged container"
 
-- task: MicrosoftSecurityDevOps@1
-  displayName: 'Microsoft Security DevOps'
-  inputs:
-    tools: 'checkov'
-  # With break: true the build should still succeed, because AZUREPIPELINES
-  # findings are warning-level (not Error) under the default --min-severity.
-  # Flip break between true/false to validate AC4 from issue #164.
-  # inputs:
-  #   break: true
-
-resources:
-  containers:
-  - container: latest_image
-    image: ubuntu:latest
+  - task: MicrosoftSecurityDevOps@1
+    displayName: 'Microsoft Security DevOps'
+    inputs:
+      tools: 'checkov'
+      # Flip between true/false to validate AC4 from issue #164. With default
+      # --min-severity Error, AZUREPIPELINES warnings must not break the build,
+      # so both runs should complete with `succeeded` status.
+      # break: true
