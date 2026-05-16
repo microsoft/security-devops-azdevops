@@ -1,0 +1,34 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+# This pipeline is a fixture for verifying the CKV_AZUREPIPELINES_* severity
+# promotion described in issue #164. The container step below references an
+# image with the :latest tag, which triggers Checkov rule CKV_AZUREPIPELINES_2
+# ("Ensure container images are not pulled from the latest tag") when MSDO runs
+# Checkov against this azure-pipelines.yml file.
+steps:
+- task: Bash@3
+  displayName: 'Run command in :latest container (triggers CKV_AZUREPIPELINES_2)'
+  target:
+    container: latest_image
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo "Hello from a :latest tagged container"
+
+- task: MicrosoftSecurityDevOps@1
+  displayName: 'Microsoft Security DevOps'
+  inputs:
+    tools: 'checkov'
+  # With break: true the build should still succeed, because AZUREPIPELINES
+  # findings are warning-level (not Error) under the default --min-severity.
+  # Flip break between true/false to validate AC4 from issue #164.
+  # inputs:
+  #   break: true
+
+resources:
+  containers:
+  - container: latest_image
+    image: ubuntu:latest
