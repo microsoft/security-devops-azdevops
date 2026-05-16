@@ -4,10 +4,15 @@ This folder provides a verification fixture for the Checkov `CKV_AZUREPIPELINES_
 severity promotion tracked in [issue #164](https://github.com/microsoft/security-devops-azdevops/issues/164)
 (split out from [#163](https://github.com/microsoft/security-devops-azdevops/issues/163)).
 
-The [azure-pipelines.yml](azure-pipelines.yml) in this folder references a container
-image tagged `:latest`, which causes Checkov (run via the `MicrosoftSecurityDevOps@1`
-task) to emit a `CKV_AZUREPIPELINES_2` finding ("Ensure container images are not
-pulled from the latest tag") against the pipeline file itself.
+The [azure-pipelines.yml](azure-pipelines.yml) in this folder declares a job whose
+`container` field references `ubuntu:latest`. When Checkov (run via the
+`MicrosoftSecurityDevOps@1` task) scans the pipeline file, the `azure_pipelines`
+framework inspects job-level `container` declarations and emits two findings:
+
+* **`CKV_AZUREPIPELINES_1`** — *Ensure container job uses a non latest version tag.*
+  Fires because the tag is `:latest`.
+* **`CKV_AZUREPIPELINES_2`** — *Ensure container job uses a version digest.* Fires
+  because the reference lacks an `@sha256:...` digest.
 
 > **Pending in Guardian:** the actual severity-mapping change that promotes
 > `CKV_AZUREPIPELINES_*` from `note` to `warning` lives in Microsoft's internal
@@ -18,7 +23,8 @@ pulled from the latest tag") against the pipeline file itself.
 ## Contents
 
 * [azure-pipelines.yml](azure-pipelines.yml) — minimal pipeline that triggers
-  `CKV_AZUREPIPELINES_2` and runs `MicrosoftSecurityDevOps@1` with `tools: 'checkov'`.
+  `CKV_AZUREPIPELINES_1` and `CKV_AZUREPIPELINES_2` and runs
+  `MicrosoftSecurityDevOps@1` with `tools: 'checkov'`.
 
 ## How to run
 
@@ -26,8 +32,9 @@ pulled from the latest tag") against the pipeline file itself.
    existing pipeline at this file).
 2. Create a pipeline in Azure DevOps that uses this YAML.
 3. Run the pipeline. The MSDO task publishes `msdo.sarif` to the build artifacts
-   under `CodeAnalysisLogs` (on disk at `$(Agent.BuildDirectory)/_msdo/msdo.sarif`,
-   typically `/home/vsts/work/1/a/.gdn/msdo.sarif`).
+   under `CodeAnalysisLogs` (on a hosted Linux agent the staged file is at
+   `$(Build.ArtifactStagingDirectory)/.gdn/msdo.sarif`, typically
+   `/home/vsts/work/1/a/.gdn/msdo.sarif`).
 4. Open the **Scans** tab on the build run to see Checkov findings.
 
 ## Expected Scans Tab output
@@ -35,11 +42,12 @@ pulled from the latest tag") against the pipeline file itself.
 Under the `checkov` tool collapse, with the SARIF Scans Tab extension at its default
 severity filter:
 
-* Once the Guardian policy change in issue #164 is deployed, `CKV_AZUREPIPELINES_2`
-  appears as a **Warning** without the user enabling "Notes".
-* Until then, the same finding is emitted as `note` and is hidden by the default
-  filter — you can verify it is present by enabling "Notes" in the Scans Tab filter,
-  or by inspecting `msdo.sarif` directly with the `jq` commands below.
+* Once the Guardian policy change in issue #164 is deployed, both
+  `CKV_AZUREPIPELINES_1` and `CKV_AZUREPIPELINES_2` appear as **Warning**
+  without the user enabling "Notes".
+* Until then, the same findings are emitted as `note` and are hidden by the default
+  filter — you can verify they are present by enabling "Notes" in the Scans Tab
+  filter, or by inspecting `msdo.sarif` directly with the `jq` commands below.
 
 ## Verification commands
 
