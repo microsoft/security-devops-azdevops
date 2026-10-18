@@ -3,8 +3,10 @@ import * as path from 'path';
 import os from 'os';
 import * as sinon from 'sinon';
 import mockery from 'mockery';
+import * as Q from 'q';
 import * as assert from 'assert';
 import * as mtr from 'azure-pipelines-task-lib/mock-toolrunner';
+import { IExecOptions } from 'azure-pipelines-task-lib/toolrunner';
 const MockToolRunner = mtr.ToolRunner;
 
 describe('Command Executor tests', function () {
@@ -67,5 +69,22 @@ describe('Command Executor tests', function () {
         let cleanedOutput = executor.CommandExecutor.removeCommandFromOutput(testOutput);
         assert.equal(cleanedOutput, testDockerVersion, "Command line should be removed");
         done();
+    });
+
+    [
+        { name: 'LF', output: 'ID=first\n\nID=second\n' },
+        { name: 'CRLF', output: 'ID=first\r\n\r\nID=second\r\n' },
+        { name: 'mixed', output: 'ID=first\r\n\nID=second\n' }
+    ].forEach(({ name, output }) => {
+        it(`should normalize ${name} output to platform line endings`, async function() {
+            sinon.stub(MockToolRunner.prototype, 'exec').callsFake((options: IExecOptions) => {
+                options.outStream.write(output);
+                return Q.resolve(0);
+            });
+            const executorMock = new executor.CommandExecutor('testTool', 'testArg');
+            const result = await executorMock.execute();
+            assert.equal(result.code, 0);
+            assert.equal(result.output, ['ID=first', 'ID=second'].join(os.EOL));
+        });
     });
 });
