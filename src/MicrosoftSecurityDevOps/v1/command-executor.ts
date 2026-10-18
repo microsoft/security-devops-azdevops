@@ -127,7 +127,7 @@ export class CommandExecutor implements IExecutor {
      */
     private getCleanedOutput: () => string = () => {
         var cleanedOutput = [];
-        Buffer.concat(this.chunks).toString().split(os.EOL).forEach((line) => {
+        Buffer.concat(this.chunks).toString().split(/\r?\n/).forEach((line) => {
             if (line) {
                 cleanedOutput.push(line);
             }

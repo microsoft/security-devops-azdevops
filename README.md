@@ -11,6 +11,7 @@ An extension for Azure DevOps that contributes a build task to run the [Microsof
 * Build breaks and more
 * Captures the [container images pushed in a build run](https://learn.microsoft.com/azure/defender-for-cloud/container-image-mapping)
   * In Azure DevOps, this requires the [Microsoft Defender for DevOps Container Mapping extension](https://marketplace.visualstudio.com/items?itemName=ms-securitydevops.ms-dfd-code-to-cloud) to extract metadata from pipelines, such as the container's digest ID and name, for connecting DevOps entities with their related cloud resources. This extension is automatically shared and installed with organizations that are [connected to Microsoft Defender for Cloud](https://learn.microsoft.com/azure/defender-for-cloud/quickstart-onboard-devops). If an organization is not connected to Defender for Cloud, there is **no way** to configure this functionality as it does not work with manual modification of the Microsoft Security DevOps extension. Attempting to configure it through Microsoft Security DevOps may cause unexpected issues.
+  * The injected Container Mapping task reads push events using Docker's structured `Actor.ID` field, including on Docker 29. Mapping failures produce pipeline warnings without failing the build.
 
 ## Basic
 

@@ -48,7 +48,7 @@ export class ContainerMapping implements IMicrosoftSecurityDevOps {
 
         // Initialize the commands 
         let dockerVersionCmd = new CommandExecutor('docker', '--version');
-        let eventsCmd = new CommandExecutor('docker', `events --since ${startTime} --until ${new Date().toISOString()} --filter event=push --filter type=image --format ID={{.ID}}`);
+        let eventsCmd = new CommandExecutor('docker', `events --since ${startTime} --until ${new Date().toISOString()} --filter event=push --filter type=image --format ID={{.Actor.ID}}`);
         let imagesCmd = new CommandExecutor('docker', 'images --format CreatedAt={{.CreatedAt}}::Repo={{.Repository}}::Tag={{.Tag}}::Digest={{.Digest}}');
 
         // Execute all commands in parallel
@@ -236,7 +236,7 @@ export class ContainerMapping implements IMicrosoftSecurityDevOps {
         }
         catch (error) {
             // Log the error
-            writeToOutStream("Error in Container Mapping: " + error);
+            tl.warning("Error in Container Mapping: " + error);
         }
         finally {
             // End the collapsible section

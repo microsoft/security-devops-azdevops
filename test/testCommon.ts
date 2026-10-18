@@ -9,5 +9,6 @@ export enum TestConstants {
     Success = 'Success',
     TaskTestTrace = 'TASK_TEST_TRACE',
     MockResponse = 'MOCK_RESPONSE',
+    MockResponses = 'MOCK_RESPONSES',
     InputPrefix = 'INPUT_'
 };
